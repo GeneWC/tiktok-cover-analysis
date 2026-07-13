@@ -1,0 +1,42 @@
+# Web framework + ASGI server
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+
+# Required by FastAPI to parse multipart/form-data (file uploads)
+python-multipart==0.0.20
+
+# Typed application settings loaded from env/defaults
+pydantic-settings==2.7.1
+
+# PyAV: ffmpeg bindings (wheel bundles ffmpeg) used to probe/validate video
+# containers - duration, resolution, and audio-track presence - without a
+# system ffmpeg install.
+av==14.0.1
+
+# Computer-vision + numerics for frame sampling and visual feature extraction.
+# NOTE: we use the 'contrib' (non-headless) build because mediapipe depends on
+# opencv-contrib-python; keeping a single OpenCV distribution avoids a clobbered
+# cv2. For a headless server, switch both to the *-headless contrib variant.
+opencv-contrib-python==4.13.0.92
+numpy==2.4.6
+
+# MediaPipe: off-the-shelf pose / hands / face detectors for framing features.
+mediapipe==0.10.35
+
+# librosa: audio feature extraction (RMS, spectral, onset). Audio is decoded to
+# a waveform with PyAV and passed to librosa as a NumPy array.
+librosa==0.11.0
+
+# Model training (Phase 4): scikit-learn for the preprocessing pipeline,
+# RandomForest models, and evaluation metrics; pandas for tabular dataset
+# handling; joblib to persist fitted artifacts. scikit-learn + joblib are also
+# pulled in transitively by librosa - pinned here now that we use them directly.
+scikit-learn==1.9.0
+pandas==3.0.3
+joblib==1.5.3
+
+# pytest: test runner for the unit/integration suite under tests/.
+pytest==9.0.3
+
+# httpx: required by FastAPI's TestClient to exercise the API in tests.
+httpx==0.28.1
