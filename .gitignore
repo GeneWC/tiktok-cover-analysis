@@ -60,3 +60,6 @@ Desktop.ini
 *.swp
 *.swo
 *~
+
+# --- Audit scripts (local only) ---
+audit/
