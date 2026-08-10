@@ -26,7 +26,7 @@ def test_full_pipeline_on_real_video():
 
     # The pipeline completes without crashing and produces the full vector.
     assert result.frames_sampled > 0
-    assert len(result.features) == 71
+    assert len(result.features) == 77  # includes D-007 audio structure cues
 
     # The deterministic, always-available stages must succeed on a normal clip.
     for step in ("metadata", "frame_sampling", "visual_quality", "framing", "motion"):

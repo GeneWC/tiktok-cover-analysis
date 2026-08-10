@@ -26,9 +26,19 @@ frontend/dist/
 frontend/.vite/
 frontend/coverage/
 
-# --- Local notes / docs (not for repo) ---
+# --- Internal documents (not for public repo) ---
+# Interview / resume / architecture / private product notes
+docs/
+audit/
+DEPLOYMENT.md
 INTERVIEW_CHEATSHEET.md
+*INTERVIEW*
+*RESUME*
+*resume*
+*ARCHITECTURE*
+*architecture*
 CoverSignal Product Requirements.pdf
+*.pdf
 
 # --- Local data directory ---
 data/
@@ -36,10 +46,19 @@ data/
 # --- CSV datasets / exports ---
 *.csv
 
-# --- Video files ---
+# --- Video / media files ---
 *.mp4
 *.mov
 *.m4v
+*.avi
+*.mkv
+*.webm
+*.flv
+*.wmv
+*.mpeg
+*.mpg
+*.m4a
+*.wav
 
 # --- Large local media folders ---
 downloads/
@@ -60,6 +79,3 @@ Desktop.ini
 *.swp
 *.swo
 *~
-
-# --- Audit scripts (local only) ---
-audit/

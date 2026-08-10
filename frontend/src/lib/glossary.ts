@@ -296,7 +296,7 @@ const ENTRIES: GlossaryEntry[] = [
   {
     aliases: ["top-quartile", "top quartile", "top-quartile probability"],
     definition:
-      "The estimated chance this video lands in the top 25% of comparable instrumental covers. It's a probability, not a guarantee.",
+      "An exploratory similarity score: how much this upload resembles videos that were top-quartile for their own creators in our training set. Not a calibrated forecast of views or virality.",
   },
   {
     aliases: ["view performance", "view performance tier"],

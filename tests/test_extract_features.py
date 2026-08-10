@@ -11,7 +11,7 @@ from __future__ import annotations
 from backend.features.extract_features import extract_all_features
 
 _BOGUS = "this_video_does_not_exist_42.mp4"
-_EXPECTED_FEATURE_COUNT = 71
+_EXPECTED_FEATURE_COUNT = 77  # 71 prior + 6 D-007 audio structure cues
 _PIPELINE_GROUPS = {
     "metadata",
     "frame_sampling",

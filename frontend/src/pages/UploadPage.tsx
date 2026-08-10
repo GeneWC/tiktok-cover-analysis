@@ -74,7 +74,7 @@ export default function UploadPage() {
         </h1>
         <p className="mt-2 text-slate-600">
           Upload an instrumental cover clip and get transparent, feature-based
-          feedback on how it presents — plus data-driven performance tiers.
+          feedback on how it presents — plus exploratory similarity tiers.
         </p>
       </div>
 

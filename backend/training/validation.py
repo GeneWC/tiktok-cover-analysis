@@ -1,13 +1,15 @@
-"""Validation strategies (PRD 12.7).
+"""Validation strategies (PRD 12.7 / D-001).
 
-Two evaluation modes the trainer uses:
+Evaluation modes:
 
-- **Random train/test split** - quick sanity/debugging. For the classifier we
-  stratify on the label so both splits keep the (~25%) positive rate.
-- **GroupKFold by creator** - the *preferred* generalization estimate. Folds are
-  split so a creator's videos are entirely in train or entirely in test, never
-  both. This prevents the model from "memorizing" a creator and then being graded
-  on that same creator (creator leakage), which would inflate scores.
+- **Durable creator train/val/test** (`creator_splits.py`) - the protocol of
+  record for reporting. Creators are disjoint across splits; GroupKFold is used
+  *inside train* for model selection; val for early selection/calibration; test
+  once per experiment cycle.
+- **GroupKFold by creator** - within-train (or legacy full-set) OOF estimates.
+  Folds keep a creator entirely in train or entirely in test.
+- **Random train/test split** - quick sanity/debugging only; stratify classifier
+  labels so both splits keep the (~25%) positive rate.
 
 Guard (PRD 12.7): cross-creator CV needs at least two creators. With too few, the
 trainer should report `INSUFFICIENT_CREATORS_MESSAGE` and skip grouped CV instead

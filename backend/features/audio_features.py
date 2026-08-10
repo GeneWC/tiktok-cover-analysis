@@ -1,9 +1,10 @@
-"""Audio features (PRD 11.6).
+"""Audio features (PRD 11.6 + D-007 musical structure cues).
 
 Song-agnostic, production-focused audio metrics: loudness/RMS, dynamic range,
 silence & clipping ratios, spectral statistics, onset strength, and energy
-windows. We deliberately do NOT compute BPM, tempo, genre, melody, or motif
-(PRD 11.6).
+windows. Extended (docs/DECISIONS.md D-007) with structure cues that are still
+not genre/melody IDs: onset density, tempo BPM, beat-interval stability, and
+spectral flux — reusable for train/serve via `extract_all_features`.
 
 Pipeline: decode the audio track to a mono float32 waveform with PyAV (its
 bundled ffmpeg handles mp4/m4a), then analyze the NumPy array with librosa.
@@ -23,6 +24,16 @@ _TARGET_SR = 22050  # librosa's default analysis rate
 _SILENCE_DB = -40.0  # frames quieter than this (rel. to peak) count as silence
 _CLIPPING_THRESHOLD = 0.99  # |sample| at/above this counts as clipping
 
+# New columns introduced for Exp C2 (musical structure). Backfill scripts key off these.
+AUDIO_STRUCTURE_FEATURE_KEYS: tuple[str, ...] = (
+    "audio_onset_density",
+    "audio_onset_density_first_3s",
+    "audio_tempo_bpm",
+    "audio_beat_interval_cv",
+    "audio_spectral_flux_mean",
+    "audio_spectral_flux_std",
+)
+
 _FEATURE_KEYS = (
     "audio_rms_mean",
     "audio_rms_std",
@@ -41,7 +52,7 @@ _FEATURE_KEYS = (
     "audio_energy_first_6s",
     "audio_energy_full",
     "audio_energy_ratio_first_3s_to_full",
-)
+) + AUDIO_STRUCTURE_FEATURE_KEYS
 
 
 def _empty_features(status: str) -> dict[str, float | str | None]:
@@ -127,6 +138,7 @@ def extract_audio_features(path: str, target_sr: int = _TARGET_SR) -> dict[str, 
     onset_env = librosa.onset.onset_strength(y=y, sr=sr)
     features["audio_onset_strength_mean"] = round(float(np.mean(onset_env)), 6)
     features["audio_onset_strength_std"] = round(float(np.std(onset_env)), 6)
+    features.update(_structure_features(y, sr, onset_env))
 
     if energy_full and energy_full > 0 and energy_first_3s is not None:
         features["audio_energy_ratio_first_3s_to_full"] = round(
@@ -139,5 +151,60 @@ def extract_audio_features(path: str, target_sr: int = _TARGET_SR) -> dict[str, 
     return features
 
 
-def _round_or_none(value: float | None) -> float | None:
-    return round(value, 6) if value is not None else None
+def extract_audio_structure_features(
+    path: str, target_sr: int = _TARGET_SR
+) -> dict[str, float | str | None]:
+    """Compute only the D-007 structure features (for cheap CSV backfill)."""
+    y = _decode_waveform(path, target_sr)
+    if y is None or y.size == 0:
+        out = {key: None for key in AUDIO_STRUCTURE_FEATURE_KEYS}
+        out["audio_feature_extraction_status"] = "failed"
+        return out
+    onset_env = librosa.onset.onset_strength(y=y, sr=target_sr)
+    out = _structure_features(y, target_sr, onset_env)
+    out["audio_feature_extraction_status"] = "ok"
+    return out
+
+
+def _structure_features(
+    y: np.ndarray, sr: int, onset_env: np.ndarray
+) -> dict[str, float | None]:
+    """Onset density, tempo, beat stability, spectral flux (song-agnostic)."""
+    duration = max(len(y) / float(sr), 1e-6)
+    onset_frames = librosa.onset.onset_detect(onset_envelope=onset_env, sr=sr)
+    onset_density = float(len(onset_frames) / duration)
+
+    # First-3s onset density (hook window).
+    n_3s = int(librosa.time_to_frames(3.0, sr=sr))
+    onset_env_3s = onset_env[: max(n_3s, 1)]
+    onset_frames_3s = librosa.onset.onset_detect(onset_envelope=onset_env_3s, sr=sr)
+    hook_dur = min(3.0, duration)
+    onset_density_3s = float(len(onset_frames_3s) / max(hook_dur, 1e-6))
+
+    tempo_arr, beat_frames = librosa.beat.beat_track(onset_envelope=onset_env, sr=sr)
+    tempo = float(np.atleast_1d(tempo_arr)[0])
+
+    beat_cv: float | None = None
+    if len(beat_frames) >= 3:
+        beat_times = librosa.frames_to_time(beat_frames, sr=sr)
+        intervals = np.diff(beat_times)
+        mean_iv = float(np.mean(intervals))
+        if mean_iv > 0:
+            beat_cv = float(np.std(intervals) / mean_iv)
+
+    # Spectral flux ≈ mean/std of the onset-strength envelope (librosa's flux proxy).
+    flux_mean = float(np.mean(onset_env)) if onset_env.size else None
+    flux_std = float(np.std(onset_env)) if onset_env.size else None
+
+    return {
+        "audio_onset_density": _round_or_none(onset_density),
+        "audio_onset_density_first_3s": _round_or_none(onset_density_3s),
+        "audio_tempo_bpm": _round_or_none(tempo, digits=3),
+        "audio_beat_interval_cv": _round_or_none(beat_cv),
+        "audio_spectral_flux_mean": _round_or_none(flux_mean),
+        "audio_spectral_flux_std": _round_or_none(flux_std),
+    }
+
+
+def _round_or_none(value: float | None, digits: int = 6) -> float | None:
+    return round(value, digits) if value is not None else None
