@@ -31,8 +31,8 @@ const VIDEO_KEYS = new Set([
 
 const LABEL_OVERRIDES: Record<string, string> = {
   duration_seconds: "Duration",
-  fps: "Frame rate",
-  aspect_ratio: "Aspect ratio",
+  fps: "Frame Rate",
+  aspect_ratio: "Aspect Ratio",
   resolution_area: "Resolution (pixels)",
   bitrate: "Bitrate",
   has_audio: "Has audio track",

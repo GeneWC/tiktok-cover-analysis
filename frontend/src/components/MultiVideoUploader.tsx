@@ -39,7 +39,11 @@ export default function MultiVideoUploader({
       <div
         role="button"
         tabIndex={0}
-        aria-label="Upload channel videos"
+        aria-label={
+          files.length
+            ? `${files.length} videos selected. Click to add more`
+            : "Upload channel videos"
+        }
         onClick={() => inputRef.current?.click()}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") inputRef.current?.click();
@@ -57,19 +61,17 @@ export default function MultiVideoUploader({
           }
         }}
         className={[
-          "flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed px-6 py-10 text-center transition",
-          disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer",
-          dragActive
-            ? "border-indigo-500 bg-indigo-50"
-            : "border-slate-300 bg-slate-50 hover:border-indigo-400 hover:bg-indigo-50/40",
+          "dropzone flex flex-col items-center justify-center gap-3 rounded-sm px-6 py-10 text-center",
+          disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer",
+          dragActive ? "dropzone-active" : "",
         ].join(" ")}
       >
-        <p className="font-medium text-slate-900">
-          Drop {minFiles}+ videos from the same creator, or click to browse
+        <p className="font-medium text-ivory">
+          Drop {minFiles}+ videos, or click to browse
         </p>
-        <p className="text-sm text-slate-500">
+        <p className="muted text-sm">
           {SUPPORTED_EXTENSIONS.join(", ")} · up to {MAX_FILE_SIZE_MB} MB each ·
-          max {MAX_DURATION_SECONDS}s · multi-select
+          max {MAX_DURATION_SECONDS}s
         </p>
         <input
           ref={inputRef}
@@ -77,6 +79,7 @@ export default function MultiVideoUploader({
           multiple
           accept="video/mp4,video/quicktime,.mp4,.mov,.m4v"
           className="hidden"
+          tabIndex={-1}
           disabled={disabled}
           onChange={(e) => {
             if (e.target.files?.length) mergeFiles(e.target.files);
@@ -86,15 +89,26 @@ export default function MultiVideoUploader({
       </div>
 
       {files.length > 0 && (
-        <ul className="mt-4 divide-y divide-slate-100 rounded-xl ring-1 ring-slate-200 bg-white">
+        <ul className="panel-quiet mt-4 divide-y divide-gold/15 rounded-sm">
           {files.map((file) => (
             <li
               key={file.name}
               className="flex items-center justify-between gap-3 px-3 py-2 text-sm"
             >
-              <span className="truncate text-slate-800">{file.name}</span>
-              <span className="shrink-0 text-slate-400">
-                {formatSize(file.size)}
+              <span className="truncate text-ivory">{file.name}</span>
+              <span className="flex shrink-0 items-center gap-2">
+                <span className="muted">{formatSize(file.size)}</span>
+                <button
+                  type="button"
+                  disabled={disabled}
+                  aria-label={`Remove ${file.name}`}
+                  onClick={() =>
+                    onFilesSelected(files.filter((f) => f.name !== file.name))
+                  }
+                  className="inline-flex min-h-11 min-w-11 items-center justify-center text-gold hover:text-ivory"
+                >
+                  Remove
+                </button>
               </span>
             </li>
           ))}

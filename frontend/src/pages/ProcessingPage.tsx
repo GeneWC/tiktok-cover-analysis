@@ -31,17 +31,16 @@ export default function ProcessingPage() {
   const failed = data?.status === "failed";
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">
-          {failed ? "Analysis could not be completed" : "Analyzing your video…"}
+    <div className="mx-auto max-w-3xl">
+      <div className="mb-8">
+        <h1 className="font-display text-3xl font-medium text-ivory">
+          {failed ? "Could not finish this video" : "Analyzing…"}
         </h1>
-        <p className="mt-1 text-sm text-slate-500">Analysis ID: {id}</p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-[220px_1fr]">
         <div>
-          <div className="aspect-[9/16] w-full overflow-hidden rounded-xl bg-slate-900 ring-1 ring-slate-200">
+          <div className="aspect-[9/16] w-full overflow-hidden rounded-sm bg-dusk ring-1 ring-gold/25">
             {previewUrl ? (
               <video
                 src={previewUrl}
@@ -51,25 +50,25 @@ export default function ProcessingPage() {
                 controls
               />
             ) : (
-              <div className="flex h-full items-center justify-center px-4 text-center text-xs text-slate-400">
+              <div className="muted flex h-full items-center justify-center px-4 text-center text-xs">
                 Preview unavailable
                 <br />
-                (reloaded page)
+                (page was reloaded)
               </div>
             )}
           </div>
         </div>
 
-        <div className="rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 p-5">
+        <div className="panel rounded-sm p-5">
           {!failed && (
             <div className="mb-4">
-              <div className="flex items-center justify-between text-sm text-slate-600 mb-1">
+              <div className="muted mb-1 flex items-center justify-between text-sm">
                 <span>Progress</span>
                 <span>{progress}%</span>
               </div>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
+              <div className="bar-track h-2 w-full overflow-hidden rounded-sm">
                 <div
-                  className="h-full rounded-full bg-indigo-600 transition-all duration-500"
+                  className="bar-fill h-full transition-all duration-500"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -77,13 +76,11 @@ export default function ProcessingPage() {
           )}
 
           {failed ? (
-            <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-              <p className="font-medium">
-                We couldn't finish analyzing this video.
-              </p>
+            <div className="alert rounded-sm px-4 py-3 text-sm">
+              <p className="font-medium">This video could not be analyzed.</p>
               <p className="mt-1">
-                It may be corrupted, too short, or missing usable content. You
-                can try a different file.
+                It may be damaged, too short, or missing usable content. Try
+                another file.
               </p>
             </div>
           ) : (
@@ -91,16 +88,13 @@ export default function ProcessingPage() {
           )}
 
           {error && !failed && (
-            <p className="mt-3 text-xs text-amber-600">
-              Reconnecting to the analysis server… ({error})
+            <p className="mt-3 text-xs text-gold">
+              Reconnecting… ({error})
             </p>
           )}
 
           {failed && (
-            <Link
-              to="/"
-              className="mt-4 inline-block rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
-            >
+            <Link to="/" className="btn-primary btn-inline mt-4 rounded-sm px-4 py-2 text-sm">
               Upload another video
             </Link>
           )}

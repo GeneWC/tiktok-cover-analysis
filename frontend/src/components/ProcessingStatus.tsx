@@ -9,55 +9,55 @@ const STATUS_STYLES: Record<
   StepStatus,
   { dot: string; text: string; label: string }
 > = {
-  complete: { dot: "bg-emerald-500", text: "text-slate-900", label: "Done" },
-  running: { dot: "bg-indigo-500 animate-pulse", text: "text-slate-900", label: "Running" },
-  failed: { dot: "bg-red-500", text: "text-red-700", label: "Failed" },
-  skipped: { dot: "bg-slate-300", text: "text-slate-500", label: "Skipped" },
-  pending: { dot: "bg-slate-200", text: "text-slate-400", label: "Pending" },
+  complete: { dot: "bg-gold", text: "text-ivory", label: "Done" },
+  running: { dot: "bg-ember animate-pulse", text: "text-ivory", label: "Running" },
+  failed: { dot: "bg-brick", text: "text-gold", label: "Failed" },
+  skipped: { dot: "bg-ridge", text: "text-dust", label: "Skipped" },
+  pending: { dot: "bg-ridge", text: "text-dust", label: "Pending" },
 };
 
 function StepIcon({ status }: { status: StepStatus }) {
   if (status === "complete") {
     return (
-      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-white text-[11px]">
+      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-gold text-[11px] text-dusk">
         ✓
       </span>
     );
   }
   if (status === "failed") {
     return (
-      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white text-[11px]">
+      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-brick text-[11px] text-ivory">
         ✕
       </span>
     );
   }
   if (status === "skipped") {
     return (
-      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-300 text-white text-[11px]">
+      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-ridge text-[11px] text-ivory">
         –
       </span>
     );
   }
   if (status === "running") {
     return (
-      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
+      <span className="inline-flex h-5 w-5 animate-spin items-center justify-center rounded-full border-2 border-gold border-t-transparent" />
     );
   }
   return (
-    <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border-2 border-slate-200" />
+    <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border-2 border-gold/30" />
   );
 }
 
 export default function ProcessingStatus({ steps }: ProcessingStatusProps) {
   return (
-    <ol className="space-y-1">
+    <ol className="space-y-1" aria-live="polite" aria-busy={PIPELINE_STEPS.some((s) => (steps[s] ?? "pending") === "running")}>
       {PIPELINE_STEPS.map((step) => {
         const status = steps[step] ?? "pending";
         const style = STATUS_STYLES[status];
         return (
           <li
             key={step}
-            className="flex items-center justify-between gap-3 rounded-lg px-3 py-2 hover:bg-slate-50"
+            className="flex items-center justify-between gap-3 rounded-sm px-3 py-2 hover:bg-ridge/40"
           >
             <div className="flex items-center gap-3">
               <StepIcon status={status} />
@@ -65,9 +65,7 @@ export default function ProcessingStatus({ steps }: ProcessingStatusProps) {
                 {formatStepLabel(step)}
               </span>
             </div>
-            <span className="text-xs font-medium text-slate-400">
-              {style.label}
-            </span>
+            <span className="muted text-xs font-medium">{style.label}</span>
           </li>
         );
       })}

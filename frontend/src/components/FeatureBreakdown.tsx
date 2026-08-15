@@ -38,33 +38,27 @@ export default function FeatureBreakdown({ features }: FeatureBreakdownProps) {
 
   if (!hasFeatures) {
     return (
-      <section className="rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 p-5">
-        <h2 className="text-lg font-semibold text-slate-900">
-          Feature breakdown
-        </h2>
-        <p className="mt-2 text-sm text-slate-500">
-          No feature values are available for this video.
-        </p>
+      <section>
+        <h2 className="font-display text-2xl text-ivory">Details</h2>
+        <p className="muted mt-2 text-sm">No measurements for this video.</p>
       </section>
     );
   }
 
   return (
-    <section className="rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 p-5">
+    <section>
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-slate-900">
-          Feature breakdown
-        </h2>
+        <h2 className="font-display text-2xl text-ivory">Details</h2>
         <button
           type="button"
-          className="text-sm font-medium text-indigo-600 hover:text-indigo-700"
+          className="link text-sm"
           onClick={() => setExpanded((v) => !v)}
         >
           {expanded ? "Collapse all" : "Expand all"}
         </button>
       </div>
-      <p className="mt-1 text-sm text-slate-500">
-        Raw measurements extracted from your video, grouped by dimension.
+      <p className="muted mt-2 text-sm">
+        Raw measurements from the video, grouped by type.
       </p>
 
       <div className="mt-4 space-y-3">
@@ -75,15 +69,15 @@ export default function FeatureBreakdown({ features }: FeatureBreakdownProps) {
             <details
               key={group}
               open={expanded}
-              className="group rounded-xl border border-slate-200"
+              className="panel-quiet group rounded-sm"
             >
-              <summary className="flex cursor-pointer items-center justify-between px-4 py-3 text-sm font-semibold text-slate-800 marker:content-['']">
+              <summary className="flex cursor-pointer items-center justify-between px-4 py-3 text-sm font-semibold text-ivory marker:content-['']">
                 <span>{group}</span>
-                <span className="text-xs font-normal text-slate-400">
-                  {rows.length} {rows.length === 1 ? "feature" : "features"}
+                <span className="muted text-xs font-normal">
+                  {rows.length} {rows.length === 1 ? "item" : "items"}
                 </span>
               </summary>
-              <div className="border-t border-slate-100 px-4 py-2">
+              <div className="border-t border-gold/15 px-4 py-2">
                 <dl className="grid gap-x-6 gap-y-1 sm:grid-cols-2">
                   {rows.map(({ key, value }) => {
                     const label = labelForFeature(key);
@@ -91,15 +85,15 @@ export default function FeatureBreakdown({ features }: FeatureBreakdownProps) {
                     return (
                       <div
                         key={key}
-                        className="flex items-center justify-between gap-3 border-b border-slate-50 py-1.5"
+                        className="flex items-center justify-between gap-3 border-b border-gold/10 py-1.5"
                       >
-                        <dt className="flex items-center text-sm text-slate-600" title={key}>
+                        <dt className="muted flex items-center text-sm" title={key}>
                           {label}
                           {definition && (
                             <InfoTip text={definition} label={label} />
                           )}
                         </dt>
-                        <dd className="text-sm font-medium tabular-nums text-slate-900">
+                        <dd className="text-sm font-medium tabular-nums text-ivory">
                           {formatNumber(value)}
                         </dd>
                       </div>

@@ -35,7 +35,7 @@ export default function ReportPage() {
           setError(
             err instanceof ApiError
               ? err.message
-              : "Failed to load the report."
+              : "Could not load the report."
           );
         }
       })
@@ -51,8 +51,8 @@ export default function ReportPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 text-slate-500">
-        <span className="h-8 w-8 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
+      <div className="muted flex flex-col items-center justify-center py-24">
+        <span className="h-8 w-8 animate-spin rounded-full border-2 border-gold border-t-transparent" />
         <p className="mt-4 text-sm">Loading report…</p>
       </div>
     );
@@ -60,17 +60,14 @@ export default function ReportPage() {
 
   if (error || !report) {
     return (
-      <div className="mx-auto max-w-lg rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
-        <h1 className="text-xl font-semibold text-slate-900">
-          Couldn't load report
+      <div className="panel mx-auto max-w-lg rounded-sm p-8 text-center">
+        <h1 className="font-display text-2xl text-ivory">
+          Could not load report
         </h1>
-        <p className="mt-2 text-sm text-slate-500">
+        <p className="muted mt-2 text-sm">
           {error ?? "This report is not available."}
         </p>
-        <Link
-          to="/"
-          className="mt-6 inline-block rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
-        >
+        <Link to="/" className="btn-primary mt-6 rounded-sm px-4 py-2 text-sm">
           Analyze another video
         </Link>
       </div>
@@ -81,49 +78,43 @@ export default function ReportPage() {
   const failed = report.status === "failed";
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className="space-y-8">
+      <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Analysis report</h1>
-          <p className="mt-1 text-sm text-slate-500">Analysis ID: {report.analysis_id}</p>
+          <h1 className="font-display text-3xl font-medium text-ivory">
+            Your Cover
+          </h1>
         </div>
-        <Link
-          to="/"
-          className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-indigo-600 ring-1 ring-indigo-200 hover:bg-indigo-50"
-        >
+        <Link to="/" className="btn-ghost btn-inline rounded-sm px-4 py-2 text-sm">
           Analyze another video
         </Link>
       </div>
 
       {failed && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          This video could not be fully analyzed, so predictions are
-          unavailable. Any details below are partial.
+        <div className="alert rounded-sm px-4 py-3 text-sm">
+          This video could not be fully analyzed. Predictions are unavailable.
+          Details below may be partial.
         </div>
       )}
 
-      <VideoSummary metadata={report.video_metadata} previewUrl={previewUrl} />
-
-      {!failed && <PredictionCard scores={scores} />}
+      {!failed && <RecommendationPanel explanation={report.explanation} />}
 
       <section>
-        <h2 className="mb-3 text-lg font-semibold text-slate-900">
-          Presentation scores
-        </h2>
+        <h2 className="mb-4 font-display text-2xl text-ivory">Scores</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <ScoreCard
-            label="Overall presentation"
+            label="Overall"
             score={scores.overall_presentation_score}
             hint={getDefinition("overall presentation") ?? undefined}
             emphasize
           />
           <ScoreCard
-            label="Visual quality"
+            label="Visual"
             score={scores.visual_quality_score}
             hint={getDefinition("visual quality") ?? undefined}
           />
           <ScoreCard
-            label="Audio quality"
+            label="Audio"
             score={scores.audio_quality_score}
             hint={getDefinition("audio quality") ?? undefined}
           />
@@ -138,14 +129,15 @@ export default function ReportPage() {
             hint={getDefinition("framing") ?? undefined}
           />
         </div>
-        <p className="mt-2 text-xs text-slate-400">
-          Scores are percentile ranks against comparable covers (higher is
-          better). A dimension shows "Not available" when its inputs are missing
-          — e.g. audio quality for a video with no audio track.
+        <p className="muted mt-3 text-xs">
+          Higher is better. “Not available” means that part could not be
+          measured.
         </p>
       </section>
 
-      <RecommendationPanel explanation={report.explanation} />
+      {!failed && <PredictionCard scores={scores} />}
+
+      <VideoSummary metadata={report.video_metadata} previewUrl={previewUrl} />
 
       <FeatureBreakdown features={report.features} />
 

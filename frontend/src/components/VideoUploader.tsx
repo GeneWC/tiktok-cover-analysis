@@ -39,7 +39,11 @@ export default function VideoUploader({
       <div
         role="button"
         tabIndex={0}
-        aria-label="Upload a video"
+        aria-label={
+          selectedFile
+            ? `Selected ${selectedFile.name}. Click to choose a different file`
+            : "Upload a video"
+        }
         onClick={openPicker}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") openPicker();
@@ -51,15 +55,13 @@ export default function VideoUploader({
         onDragLeave={() => setDragActive(false)}
         onDrop={handleDrop}
         className={[
-          "flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed px-6 py-12 text-center transition",
-          disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer",
-          dragActive
-            ? "border-indigo-500 bg-indigo-50"
-            : "border-slate-300 bg-slate-50 hover:border-indigo-400 hover:bg-indigo-50/40",
+          "dropzone flex flex-col items-center justify-center gap-3 rounded-sm px-6 py-12 text-center",
+          disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer",
+          dragActive ? "dropzone-active" : "",
         ].join(" ")}
       >
         <svg
-          className="h-10 w-10 text-indigo-500"
+          className="h-10 w-10 text-gold"
           fill="none"
           viewBox="0 0 24 24"
           strokeWidth={1.5}
@@ -75,19 +77,19 @@ export default function VideoUploader({
 
         {selectedFile ? (
           <div>
-            <p className="font-medium text-slate-900 break-all">
+            <p className="break-all font-medium text-ivory">
               {selectedFile.name}
             </p>
-            <p className="text-sm text-slate-500">
+            <p className="muted text-sm">
               {formatSize(selectedFile.size)} · click to choose a different file
             </p>
           </div>
         ) : (
           <div>
-            <p className="font-medium text-slate-900">
-              Drop your cover video here, or click to browse
+            <p className="font-medium text-ivory">
+              Drop your cover here, or click to browse
             </p>
-            <p className="text-sm text-slate-500">
+            <p className="muted text-sm">
               {SUPPORTED_EXTENSIONS.join(", ")} · up to {MAX_FILE_SIZE_MB} MB ·
               max {MAX_DURATION_SECONDS}s
             </p>
@@ -99,11 +101,11 @@ export default function VideoUploader({
           type="file"
           accept="video/mp4,video/quicktime,.mp4,.mov,.m4v"
           className="hidden"
+          tabIndex={-1}
           disabled={disabled}
           onChange={(e) => {
             const file = e.target.files?.[0];
             if (file) onFileSelected(file);
-            // reset so selecting the same file again re-triggers onChange
             e.target.value = "";
           }}
         />

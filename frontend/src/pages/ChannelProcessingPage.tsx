@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ApiError, getChannelStatus } from "../api/client";
 import { CHANNEL_STEPS, type StepStatus } from "../types";
+import { formatStatusLabel } from "../lib/format";
 
 const STEP_LABELS: Record<string, string> = {
   upload: "Upload",
-  features: "Extract features",
-  diagnose: "Within-batch diagnostics",
+  features: "Read each video",
+  diagnose: "Compare the batch",
   report: "Build report",
 };
 
@@ -35,7 +36,7 @@ export default function ChannelProcessingPage() {
           return;
         }
         if (status.status === "failed") {
-          setError(status.error || "Channel diagnostics failed.");
+          setError(status.error || "Comparison failed.");
           return;
         }
         timer = window.setTimeout(tick, 1500);
@@ -44,7 +45,7 @@ export default function ChannelProcessingPage() {
         setError(
           err instanceof ApiError
             ? err.message
-            : "Could not poll channel status."
+            : "Could not check progress."
         );
       }
     };
@@ -57,18 +58,18 @@ export default function ChannelProcessingPage() {
   }, [id, navigate]);
 
   return (
-    <div className="max-w-xl mx-auto">
-      <h1 className="text-2xl font-bold text-slate-900">
-        Running channel diagnostics
+    <div className="mx-auto max-w-xl">
+      <h1 className="font-display text-3xl font-medium text-ivory">
+        Comparing your videos
       </h1>
-      <p className="mt-2 text-sm text-slate-600">
-        Extracting presentation features for each video, then comparing within
-        your batch. This can take a while on CPU.
+      <p className="muted mt-3 max-w-prose">
+        Reading each video, then comparing them to each other. This can take a
+        while.
       </p>
 
       {nVideos > 0 && (
-        <p className="mt-4 text-sm text-slate-500">
-          Features: {nDone} / {nVideos}
+        <p className="muted mt-4 text-sm">
+          Videos read: {nDone} / {nVideos}
         </p>
       )}
 
@@ -78,21 +79,21 @@ export default function ChannelProcessingPage() {
           return (
             <li
               key={step}
-              className="flex items-center justify-between rounded-lg bg-white px-3 py-2 ring-1 ring-slate-200 text-sm"
+              className="panel-quiet flex items-center justify-between rounded-sm px-3 py-2 text-sm"
             >
               <span>{STEP_LABELS[step] ?? step}</span>
-              <span className="text-slate-500 capitalize">{state}</span>
+              <span className="muted">{formatStatusLabel(state)}</span>
             </li>
           );
         })}
       </ol>
 
       {error && (
-        <div className="mt-6 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">
+        <div className="alert mt-6 rounded-sm px-4 py-3 text-sm">
           {error}
           <div className="mt-2">
-            <Link to="/channel" className="font-medium underline">
-              Back to channel upload
+            <Link to="/channel" className="btn-ghost btn-inline mt-2 rounded-sm px-4 py-2 text-sm">
+              Back to upload
             </Link>
           </div>
         </div>

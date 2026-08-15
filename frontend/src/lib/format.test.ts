@@ -56,7 +56,7 @@ describe("formatNumber", () => {
 
 describe("formatStepLabel", () => {
   it("uses friendly labels for known steps", () => {
-    expect(formatStepLabel("frame_sampling")).toBe("Sampling frames");
+    expect(formatStepLabel("frame_sampling")).toBe("Looking at frames");
   });
   it("humanizes unknown steps", () => {
     expect(formatStepLabel("some_new_step")).toBe("Some New Step");

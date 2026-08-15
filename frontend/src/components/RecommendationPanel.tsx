@@ -6,20 +6,18 @@ interface RecommendationPanelProps {
   explanation: ReportExplanation;
 }
 
-/** Render a signal, adding an info tooltip to its leading term when known. */
 function SignalText({ signal }: { signal: string }) {
   const parsed = getSignalTerm(signal);
   if (!parsed) return <>{signal}</>;
   return (
     <>
-      <span className="font-medium text-slate-800">{parsed.term}</span>
+      <span className="font-medium text-ivory">{parsed.term}</span>
       <InfoTip text={parsed.definition} label={parsed.term} />
       {parsed.rest}
     </>
   );
 }
 
-/** Render a recommendation, adding a tooltip when it contains known jargon. */
 function RecommendationText({ text }: { text: string }) {
   const inline = getInlineDefinition(text);
   return (
@@ -41,23 +39,23 @@ function SignalList({
   tone: "strong" | "weak" | "neutral";
   emptyText: string;
 }) {
-  const styles = {
-    strong: { badge: "bg-emerald-500", ring: "ring-emerald-100" },
-    weak: { badge: "bg-amber-500", ring: "ring-amber-100" },
-    neutral: { badge: "bg-slate-400", ring: "ring-slate-100" },
+  const badge = {
+    strong: "bg-gold",
+    weak: "bg-ember",
+    neutral: "bg-brick",
   }[tone];
 
   return (
-    <div className={`rounded-xl bg-white p-4 ring-1 ${styles.ring}`}>
-      <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-800">
-        <span className={`inline-block h-2.5 w-2.5 rounded-full ${styles.badge}`} />
+    <div>
+      <h3 className="flex items-center gap-2 text-sm font-semibold text-ivory">
+        <span className={`inline-block h-2.5 w-2.5 rounded-full ${badge}`} />
         {title}
       </h3>
       {items.length > 0 ? (
-        <ul className="mt-2 space-y-1.5 text-sm text-slate-700">
+        <ul className="mt-2 space-y-1.5 text-sm text-ivory">
           {items.map((item, i) => (
             <li key={i} className="flex gap-2">
-              <span className="text-slate-300">•</span>
+              <span className="text-gold/50">•</span>
               <span>
                 <SignalText signal={item} />
               </span>
@@ -65,7 +63,7 @@ function SignalList({
           ))}
         </ul>
       ) : (
-        <p className="mt-2 text-sm text-slate-400">{emptyText}</p>
+        <p className="muted mt-2 text-sm">{emptyText}</p>
       )}
     </div>
   );
@@ -75,45 +73,40 @@ export default function RecommendationPanel({
   explanation,
 }: RecommendationPanelProps) {
   return (
-    <section className="rounded-2xl bg-slate-100/60 ring-1 ring-slate-200 p-5">
-      <h2 className="text-lg font-semibold text-slate-900">
-        Signals & recommendations
-      </h2>
-      <p className="mt-1 text-sm text-slate-500">
-        How this video compares to similar covers on interpretable production
-        signals. These are correlations, not guarantees.
+    <section>
+      <h2 className="font-display text-2xl text-ivory">What stands out</h2>
+      <p className="muted mt-2 max-w-prose text-sm">
+        What this video does well, and where it is weaker.
       </p>
 
-      <div className="mt-4 grid gap-3 md:grid-cols-3">
+      <div className="mt-5 grid gap-6 md:grid-cols-3">
         <SignalList
-          title="Strong signals"
+          title="Strong"
           tone="strong"
           items={explanation.strong_signals}
-          emptyText="No standout strengths detected."
+          emptyText="Nothing stood out as strong."
         />
         <SignalList
-          title="Weak signals"
+          title="Weak"
           tone="weak"
           items={explanation.weak_signals}
-          emptyText="No notable weaknesses detected."
+          emptyText="Nothing stood out as weak."
         />
         <SignalList
-          title="Neutral / not evaluated"
+          title="Other"
           tone="neutral"
           items={explanation.neutral_or_missing_signals}
-          emptyText="Nothing to note."
+          emptyText="Nothing else to note."
         />
       </div>
 
       {explanation.recommendations.length > 0 && (
-        <div className="mt-4 rounded-xl bg-white p-4 ring-1 ring-indigo-100">
-          <h3 className="text-sm font-semibold text-indigo-800">
-            Suggested improvements
-          </h3>
-          <ol className="mt-2 space-y-1.5 text-sm text-slate-700">
+        <div className="panel mt-6 rounded-sm p-4">
+          <h3 className="text-sm font-semibold text-gold">Try this</h3>
+          <ol className="mt-2 space-y-1.5 text-sm text-ivory">
             {explanation.recommendations.map((rec, i) => (
               <li key={i} className="flex gap-2">
-                <span className="font-semibold text-indigo-500">{i + 1}.</span>
+                <span className="font-semibold text-gold">{i + 1}.</span>
                 <span>
                   <RecommendationText text={rec} />
                 </span>

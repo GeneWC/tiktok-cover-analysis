@@ -17,9 +17,9 @@ export default function VideoSummary({
   previewUrl,
 }: VideoSummaryProps) {
   return (
-    <section className="rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 p-5">
+    <section className="panel rounded-sm p-5">
       <div className="grid gap-5 sm:grid-cols-[160px_1fr]">
-        <div className="aspect-[9/16] w-full overflow-hidden rounded-xl bg-slate-900">
+        <div className="aspect-[9/16] w-full overflow-hidden rounded-sm bg-dusk">
           {previewUrl ? (
             <video
               src={previewUrl}
@@ -29,16 +29,14 @@ export default function VideoSummary({
               controls
             />
           ) : (
-            <div className="flex h-full items-center justify-center px-3 text-center text-xs text-slate-400">
+            <div className="muted flex h-full items-center justify-center px-3 text-center text-xs">
               Preview unavailable
             </div>
           )}
         </div>
 
         <div>
-          <h2 className="text-lg font-semibold text-slate-900">
-            Video summary
-          </h2>
+          <h2 className="font-display text-2xl text-ivory">The video</h2>
           {metadata ? (
             <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
               <Item label="Duration" value={formatSeconds(metadata.duration_seconds)} />
@@ -47,12 +45,12 @@ export default function VideoSummary({
                 value={`${metadata.width}×${metadata.height}`}
               />
               <Item
-                label="Frame rate"
+                label="Frame Rate"
                 value={metadata.fps != null ? `${metadata.fps.toFixed(0)} fps` : NOT_AVAILABLE}
               />
               <Item label="Orientation" value={orientation(metadata)} />
               <Item
-                label="Aspect ratio"
+                label="Aspect Ratio"
                 value={
                   metadata.aspect_ratio != null
                     ? metadata.aspect_ratio.toFixed(3)
@@ -60,12 +58,12 @@ export default function VideoSummary({
                 }
               />
               <Item
-                label="Audio track"
-                value={metadata.has_audio ? "Present" : "None"}
+                label="Audio"
+                value={metadata.has_audio ? "Yes" : "None"}
               />
             </dl>
           ) : (
-            <p className="mt-3 text-sm text-slate-500">{NOT_AVAILABLE}</p>
+            <p className="muted mt-3 text-sm">{NOT_AVAILABLE}</p>
           )}
         </div>
       </div>
@@ -76,8 +74,8 @@ export default function VideoSummary({
 function Item({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-slate-500">{label}</dt>
-      <dd className="font-medium text-slate-900">{value}</dd>
+      <dt className="muted">{label}</dt>
+      <dd className="font-medium text-ivory">{value}</dd>
     </div>
   );
 }

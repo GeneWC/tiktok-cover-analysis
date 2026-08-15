@@ -3,10 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { ApiError, getChannelReport } from "../api/client";
 import type { ChannelReportResponse } from "../types";
 import LimitationsNote from "../components/LimitationsNote";
-
-function formatFeature(name: string): string {
-  return name.replaceAll("_", " ");
-}
+import { labelForFeature } from "../lib/featureCatalog";
 
 export default function ChannelReportPage() {
   const { id } = useParams<{ id: string }>();
@@ -19,17 +16,17 @@ export default function ChannelReportPage() {
       .then(setReport)
       .catch((err) =>
         setError(
-          err instanceof ApiError ? err.message : "Failed to load channel report."
+          err instanceof ApiError ? err.message : "Could not load the report."
         )
       );
   }, [id]);
 
   if (error) {
     return (
-      <div className="max-w-2xl mx-auto text-rose-700">
-        {error}
+      <div className="mx-auto max-w-2xl">
+        <p className="alert rounded-sm px-4 py-3">{error}</p>
         <div className="mt-3">
-          <Link to="/channel" className="underline">
+          <Link to="/channel" className="btn-ghost btn-inline rounded-sm px-4 py-2 text-sm">
             Try again
           </Link>
         </div>
@@ -38,42 +35,47 @@ export default function ChannelReportPage() {
   }
 
   if (!report) {
-    return <p className="text-slate-500">Loading channel report…</p>;
+    return (
+      <div className="muted flex flex-col items-center justify-center py-24">
+        <span className="h-8 w-8 animate-spin rounded-full border-2 border-gold border-t-transparent" />
+        <p className="mt-4 text-sm">Loading report…</p>
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="mx-auto max-w-3xl space-y-8">
       <div>
-        <p className="text-sm text-indigo-600 mb-1">
-          <Link to="/channel" className="hover:underline">
-            New channel batch
+        <p className="mb-3 text-sm">
+          <Link to="/channel" className="link">
+            New comparison
           </Link>
-          <span className="mx-2 text-slate-300">·</span>
-          <Link to="/" className="hover:underline text-slate-500">
-            Single-video analysis
+          <span className="mx-2 text-gold/40">·</span>
+          <Link to="/" className="nav-link">
+            One video
           </Link>
         </p>
-        <h1 className="text-3xl font-bold text-slate-900">
-          Channel diagnostics
+        <h1 className="font-display text-3xl font-medium text-ivory">
+          Your Videos
         </h1>
-        <p className="mt-2 text-slate-600">
-          Within-batch comparison only. {report.n_videos} videos
+        <p className="muted mt-3">
+          Compared only to each other. {report.n_videos} videos
           {report.n_hits != null
-            ? ` · ${report.n_hits} top-quartile in this batch`
-            : " · no hit/miss labels (add views next time)"}
+            ? ` · ${report.n_hits} in the top quarter of this batch`
+            : " · no view counts this time"}
           .
         </p>
       </div>
 
       {report.recommendations.length > 0 && (
-        <section className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-          <h2 className="text-lg font-semibold text-slate-900">
+        <section>
+          <h2 className="font-display text-2xl text-ivory">
             Patterns to notice
           </h2>
-          <ul className="mt-3 space-y-2 text-sm text-slate-700">
+          <ul className="mt-4 space-y-2 text-sm text-ivory">
             {report.recommendations.map((tip) => (
               <li key={tip} className="flex gap-2">
-                <span className="text-indigo-400">•</span>
+                <span className="text-gold">•</span>
                 <span>{tip}</span>
               </li>
             ))}
@@ -82,32 +84,26 @@ export default function ChannelReportPage() {
       )}
 
       {report.top_feature_deltas.length > 0 && (
-        <section className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-          <h2 className="text-lg font-semibold text-slate-900">
-            What differs in your stronger uploads
+        <section className="panel rounded-sm p-5">
+          <h2 className="font-display text-2xl text-ivory">
+            What differs in stronger uploads
           </h2>
-          <p className="mt-1 text-sm text-slate-500">
-            Mean feature level for batch top-quartile vs the rest (your data
-            only).
+          <p className="muted mt-2 text-sm">
+            Average difference between your top videos and the rest.
           </p>
-          <ul className="mt-4 divide-y divide-slate-100">
+          <ul className="mt-4 divide-y divide-gold/15">
             {report.top_feature_deltas.map((d) => (
               <li
                 key={d.feature}
                 className="flex items-center justify-between gap-3 py-2 text-sm"
               >
-                <span className="text-slate-700">
-                  {formatFeature(d.feature)}
-                </span>
+                <span className="text-ivory">{labelForFeature(d.feature)}</span>
                 <span
                   className={
-                    d.delta >= 0
-                      ? "font-medium text-emerald-700"
-                      : "font-medium text-rose-700"
+                    d.delta >= 0 ? "font-medium text-gold" : "font-medium text-ember"
                   }
                 >
-                  {d.delta >= 0 ? "+" : ""}
-                  {d.delta.toFixed(3)}
+                  {d.delta >= 0 ? "Higher" : "Lower"}
                 </span>
               </li>
             ))}
@@ -115,34 +111,31 @@ export default function ChannelReportPage() {
         </section>
       )}
 
-      <section className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-        <h2 className="text-lg font-semibold text-slate-900">
-          Videos ranked by presentation proxy
-        </h2>
-        <p className="mt-1 text-sm text-slate-500">
-          Simple within-batch average of brightness / sharpness / framing cues —
-          not a model score.
+      <section className="panel rounded-sm p-5">
+        <h2 className="font-display text-2xl text-ivory">Ranked videos</h2>
+        <p className="muted mt-2 text-sm">
+          Simple rank from brightness, sharpness, and framing in this batch.
         </p>
-        <ul className="mt-4 divide-y divide-slate-100">
+        <ul className="mt-4 divide-y divide-gold/15">
           {report.video_ranks.map((row, index) => (
             <li
               key={row.video_id}
               className="flex items-center justify-between gap-3 py-2 text-sm"
             >
               <div className="min-w-0">
-                <p className="truncate font-medium text-slate-800">
+                <p className="truncate font-medium text-ivory">
                   #{index + 1} {row.filename || row.video_id}
                 </p>
-                <p className="text-xs text-slate-500">
+                <p className="muted text-xs">
                   {row.views != null ? `${row.views.toLocaleString()} views · ` : ""}
                   {row.label === 1
-                    ? "batch top quartile"
+                    ? "top quarter of this batch"
                     : row.label === 0
-                      ? "below batch top quartile"
-                      : "unlabeled"}
+                      ? "below the top quarter"
+                      : "no view count"}
                 </p>
               </div>
-              <span className="shrink-0 text-slate-600">
+              <span className="shrink-0 text-gold">
                 {row.presentation_score.toFixed(1)}
               </span>
             </li>

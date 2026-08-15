@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import VideoUploader from "../components/VideoUploader";
 import { analyze, ApiError } from "../api/client";
 import { useAnalysis } from "../context/AnalysisContext";
@@ -14,9 +14,6 @@ export default function UploadPage() {
   const { setUploadedVideo } = useAnalysis();
 
   const [file, setFile] = useState<File | null>(null);
-  const [instrument, setInstrument] = useState("");
-  const [hashtags, setHashtags] = useState("");
-  const [showOptional, setShowOptional] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -53,90 +50,39 @@ export default function UploadPage() {
     }
 
     try {
-      const { analysis_id } = await analyze({ file, instrument, hashtags });
+      const { analysis_id } = await analyze({ file });
       setUploadedVideo(analysis_id, file);
       navigate(`/processing/${analysis_id}`);
     } catch (err) {
       const message =
         err instanceof ApiError
           ? err.message
-          : "Something went wrong uploading your video.";
+          : "Could not upload the video.";
       setError(message);
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-slate-900">
-          Analyze your cover video
+    <div className="mx-auto max-w-2xl">
+      <div className="mb-10 text-center">
+        <h1 className="font-display text-4xl font-medium text-ivory">
+          Analyze Your Cover
         </h1>
-        <p className="mt-2 text-slate-600">
-          Upload an instrumental cover clip and get transparent, feature-based
-          feedback on how it presents — plus exploratory similarity tiers.
-        </p>
-        <p className="mt-3 text-sm">
-          <Link
-            to="/channel"
-            className="font-medium text-indigo-600 hover:text-indigo-700"
-          >
-            Prefer channel diagnostics?
-          </Link>{" "}
-          <span className="text-slate-500">
-            Compare {5}+ of your own videos with optional view counts.
-          </span>
+        <p className="muted mx-auto mt-3 max-w-md">
+          Upload a cover. Get a plain read on filming and sound.
         </p>
       </div>
 
-      <div className="rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 p-6">
+      <div className="panel rounded-sm p-6">
         <VideoUploader
           selectedFile={file}
           onFileSelected={handleSelect}
           disabled={submitting}
         />
 
-        <div className="mt-4">
-          <button
-            type="button"
-            className="text-sm font-medium text-indigo-600 hover:text-indigo-700"
-            onClick={() => setShowOptional((v) => !v)}
-          >
-            {showOptional ? "Hide" : "Add"} optional context (instrument,
-            hashtags)
-          </button>
-
-          {showOptional && (
-            <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              <label className="text-sm">
-                <span className="block text-slate-600 mb-1">Instrument</span>
-                <input
-                  type="text"
-                  value={instrument}
-                  onChange={(e) => setInstrument(e.target.value)}
-                  placeholder="e.g. violin"
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none"
-                />
-              </label>
-              <label className="text-sm">
-                <span className="block text-slate-600 mb-1">Hashtags</span>
-                <input
-                  type="text"
-                  value={hashtags}
-                  onChange={(e) => setHashtags(e.target.value)}
-                  placeholder="#violin #cover"
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none"
-                />
-              </label>
-            </div>
-          )}
-        </div>
-
         {error && (
-          <div
-            role="alert"
-            className="mt-4 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700"
-          >
+          <div role="alert" className="alert mt-4 rounded-sm px-4 py-3 text-sm">
             {error}
           </div>
         )}
@@ -145,15 +91,10 @@ export default function UploadPage() {
           type="button"
           onClick={handleSubmit}
           disabled={!file || submitting}
-          className="mt-6 w-full rounded-xl bg-indigo-600 px-4 py-3 font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="btn-primary mt-6 rounded-sm px-4 py-3"
         >
           {submitting ? "Uploading…" : "Analyze video"}
         </button>
-
-        <p className="mt-3 text-center text-xs text-slate-400">
-          Hashtags and instrument are optional and not used by the current
-          model.
-        </p>
       </div>
     </div>
   );

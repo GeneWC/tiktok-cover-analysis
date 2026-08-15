@@ -51,16 +51,16 @@ export function formatNumber(
 
 // Friendly labels for the 10 pipeline steps (PRD 17.3).
 const STEP_LABELS: Record<PipelineStep, string> = {
-  upload: "Uploading video",
-  metadata: "Reading video metadata",
-  frame_sampling: "Sampling frames",
-  visual_quality: "Analyzing visual quality",
-  framing: "Analyzing framing & subject",
-  motion: "Analyzing motion & stability",
-  audio: "Analyzing audio",
-  ocr: "Detecting on-screen text",
-  prediction: "Running prediction models",
-  report: "Generating report",
+  upload: "Uploading",
+  metadata: "Reading the file",
+  frame_sampling: "Looking at frames",
+  visual_quality: "Checking the picture",
+  framing: "Checking the framing",
+  motion: "Checking motion",
+  audio: "Checking the sound",
+  ocr: "Looking for on-screen text",
+  prediction: "Comparing to other covers",
+  report: "Writing the report",
 };
 
 export function formatStepLabel(step: string): string {

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import MultiVideoUploader from "../components/MultiVideoUploader";
 import { ApiError, diagnoseChannel } from "../api/client";
 import { validateFileBasics } from "../lib/validation";
@@ -40,13 +40,11 @@ export default function ChannelUploadPage() {
   const handleSubmit = async () => {
     if (submitting) return;
     if (files.length < MIN_FILES) {
-      setError(`Add at least ${MIN_FILES} videos from the same creator.`);
+      setError(`Add at least ${MIN_FILES} videos.`);
       return;
     }
     if (anyViewFilled && !allViewsFilled) {
-      setError(
-        "Enter views for every video, or leave all blank for presentation-only ranks."
-      );
+      setError("Enter views for every video, or leave all blank.");
       return;
     }
 
@@ -62,33 +60,25 @@ export default function ChannelUploadPage() {
       setError(
         err instanceof ApiError
           ? err.message
-          : "Something went wrong uploading your channel videos."
+          : "Could not upload the videos."
       );
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="text-center mb-8">
-        <p className="text-sm font-medium text-indigo-600 mb-2">
-          <Link to="/" className="hover:underline">
-            Single video
-          </Link>
-          <span className="mx-2 text-slate-300">/</span>
-          Channel diagnostics
-        </p>
-        <h1 className="text-3xl font-bold text-slate-900">
-          Diagnose your channel batch
+    <div className="mx-auto max-w-2xl">
+      <div className="mb-10 text-center">
+        <h1 className="font-display text-4xl font-medium text-ivory">
+          Compare Your Videos
         </h1>
-        <p className="mt-2 text-slate-600">
-          Upload {MIN_FILES}+ of your own covers and optional view counts. We
-          show what differs in <em>your</em> stronger uploads — not a cross-creator
-          virality forecast.
+        <p className="muted mx-auto mt-3 max-w-md">
+          Upload {MIN_FILES} or more of your covers. See what the stronger ones
+          share.
         </p>
       </div>
 
-      <div className="rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 p-6">
+      <div className="panel rounded-sm p-6">
         <MultiVideoUploader
           files={files}
           onFilesSelected={handleFiles}
@@ -98,12 +88,11 @@ export default function ChannelUploadPage() {
 
         {files.length > 0 && (
           <div className="mt-6">
-            <h2 className="text-sm font-semibold text-slate-800">
-              Optional views (for hit/miss deltas)
+            <h2 className="font-display text-lg text-ivory">
+              View counts (optional)
             </h2>
-            <p className="mt-1 text-xs text-slate-500">
-              Provide views for all videos to compute within-batch top-quartile
-              labels. Leave blank for presentation ranks only.
+            <p className="muted mt-1 text-sm">
+              Fill in every video, or leave them all blank.
             </p>
             <div className="mt-3 space-y-2">
               {files.map((file) => (
@@ -111,7 +100,7 @@ export default function ChannelUploadPage() {
                   key={file.name}
                   className="flex items-center gap-3 text-sm"
                 >
-                  <span className="flex-1 truncate text-slate-700">
+                  <span className="flex-1 truncate text-ivory">
                     {file.name}
                   </span>
                   <input
@@ -127,7 +116,7 @@ export default function ChannelUploadPage() {
                         [file.name]: e.target.value,
                       }))
                     }
-                    className="w-28 rounded-lg border border-slate-200 px-2 py-1.5 text-slate-900"
+                    className="field min-h-11 w-32 rounded-sm px-2"
                   />
                 </label>
               ))}
@@ -136,7 +125,7 @@ export default function ChannelUploadPage() {
         )}
 
         {error && (
-          <p className="mt-4 text-sm text-rose-600" role="alert">
+          <p className="alert mt-4 rounded-sm px-4 py-3 text-sm" role="alert">
             {error}
           </p>
         )}
@@ -145,9 +134,9 @@ export default function ChannelUploadPage() {
           type="button"
           disabled={submitting || files.length < MIN_FILES}
           onClick={handleSubmit}
-          className="mt-6 w-full rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+          className="btn-primary mt-6 rounded-sm px-4 py-3"
         >
-          {submitting ? "Uploading…" : "Run channel diagnostics"}
+          {submitting ? "Uploading…" : "Compare videos"}
         </button>
       </div>
     </div>

@@ -271,52 +271,46 @@ const ENTRIES: GlossaryEntry[] = [
   {
     aliases: ["overall presentation", "presentation score"],
     definition:
-      "A 0-100 rank of how polished the video looks and sounds compared to similar covers — averaging the visual, audio, motion, and framing scores.",
+      "How polished the video looks and sounds, from 0 to 100.",
   },
   {
     aliases: ["visual quality"],
-    definition:
-      "A 0-100 rank of picture quality (sharpness, contrast, color) versus comparable covers.",
+    definition: "Picture quality: sharpness, contrast, and color.",
   },
   {
     aliases: ["audio quality"],
     definition:
-      "A 0-100 rank of sound quality (dynamics, clipping, silence) versus comparable covers. Shows 'Not available' when there's no audio track.",
+      "Sound quality. Shows “Not available” if there is no audio.",
   },
   {
     aliases: ["motion"],
-    definition:
-      "A 0-100 rank of how steady and controlled the movement and camera are versus comparable covers.",
+    definition: "How steady the movement and camera are.",
   },
   {
     aliases: ["framing"],
-    definition:
-      "A 0-100 rank of how well the performer is positioned and sized in the frame versus comparable covers.",
+    definition: "How the performer sits in the frame.",
   },
   {
     aliases: ["top-quartile", "top quartile", "top-quartile probability"],
     definition:
-      "An exploratory similarity score: how much this upload resembles videos that were top-quartile for their own creators in our training set. Not a calibrated forecast of views or virality.",
+      "How much this video resembles stronger covers in the training set. Not a view forecast.",
   },
   {
     aliases: ["view performance", "view performance tier"],
-    definition:
-      "A tier (Low to High) estimating how this video's views might compare to the creator's own typical results. Marked low-confidence because it doesn't generalize well.",
+    definition: "A Low to High guess at views. Low confidence.",
   },
   {
     aliases: ["engagement", "engagement tier"],
-    definition:
-      "A tier (Low to High) estimating likes/comments relative to views, compared to similar covers.",
+    definition: "A Low to High guess at likes and comments relative to views.",
   },
   {
     aliases: ["shareability", "shareability tier"],
-    definition:
-      "A tier (Low to High) estimating how often the video might be shared relative to views. Marked low-confidence.",
+    definition: "A Low to High guess at shares relative to views. Low confidence.",
   },
   {
     aliases: ["percentile", "percentile rank"],
     definition:
-      "Where this video ranks against the training set. A 70 means it scores higher than about 70% of comparable covers.",
+      "Where this video ranks. 70 means higher than about 70% of similar covers.",
   },
 ];
 

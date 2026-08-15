@@ -1,5 +1,4 @@
 import { formatScore, NOT_AVAILABLE } from "../lib/format";
-import InfoTip from "./InfoTip";
 
 interface ScoreCardProps {
   label: string;
@@ -8,10 +7,10 @@ interface ScoreCardProps {
   hint?: string;
 }
 
-function barColor(score: number): string {
-  if (score >= 66) return "bg-emerald-500";
-  if (score >= 33) return "bg-amber-500";
-  return "bg-red-500";
+function barTone(score: number): string {
+  if (score >= 66) return "bg-gold";
+  if (score >= 33) return "bg-ember";
+  return "bg-brick";
 }
 
 export default function ScoreCard({
@@ -26,37 +25,32 @@ export default function ScoreCard({
   return (
     <div
       className={[
-        "rounded-xl p-4 ring-1",
-        emphasize
-          ? "bg-indigo-600 text-white ring-indigo-600"
-          : "bg-white ring-slate-200",
+        "rounded-sm p-4",
+        emphasize ? "bg-gold text-dusk" : "panel-quiet",
       ].join(" ")}
     >
-      <div className="flex items-baseline justify-between">
+      <div className="flex items-baseline justify-between gap-3">
         <span
           className={
-            emphasize
-              ? "flex items-center text-sm text-indigo-100"
-              : "flex items-center text-sm text-slate-600"
+            emphasize ? "text-sm text-dusk/80" : "muted text-sm"
           }
         >
           {label}
-          {hint && <InfoTip text={hint} label={label} />}
         </span>
         <span
           className={
             emphasize
-              ? "text-2xl font-bold"
-              : "text-2xl font-bold text-slate-900"
+              ? "font-display text-2xl font-medium"
+              : "font-display text-2xl font-medium text-ivory"
           }
         >
-          {available ? formatScore(score) : ""}
+          {available ? formatScore(score) : NOT_AVAILABLE}
           {available && (
             <span
               className={
                 emphasize
-                  ? "text-sm font-normal text-indigo-100"
-                  : "text-sm font-normal text-slate-400"
+                  ? "text-sm font-normal text-dusk/70"
+                  : "muted text-sm font-normal"
               }
             >
               /100
@@ -64,32 +58,27 @@ export default function ScoreCard({
           )}
         </span>
       </div>
+      {hint && (
+        <p className={emphasize ? "mt-1 text-xs text-dusk/70" : "muted mt-1 text-xs"}>
+          {hint}
+        </p>
+      )}
 
-      {available ? (
+      {available && (
         <div
           className={[
-            "mt-2 h-2 w-full overflow-hidden rounded-full",
-            emphasize ? "bg-indigo-400/40" : "bg-slate-100",
+            "mt-2 h-2 w-full overflow-hidden rounded-sm",
+            emphasize ? "bg-dusk/20" : "bar-track",
           ].join(" ")}
         >
           <div
             className={[
-              "h-full rounded-full",
-              emphasize ? "bg-white" : barColor(pct),
+              "h-full rounded-sm",
+              emphasize ? "bg-dusk" : barTone(pct),
             ].join(" ")}
             style={{ width: `${pct}%` }}
           />
         </div>
-      ) : (
-        <p
-          className={
-            emphasize
-              ? "mt-2 text-sm text-indigo-100"
-              : "mt-2 text-sm text-slate-400"
-          }
-        >
-          {NOT_AVAILABLE}
-        </p>
       )}
     </div>
   );

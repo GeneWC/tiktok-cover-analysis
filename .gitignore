@@ -42,9 +42,19 @@ CoverSignal Product Requirements.pdf
 
 # --- Local data directory ---
 data/
+uploads/
+tmp/
+temp/
+cache/
+*.db
+*.sqlite
+*.sqlite3
+*.log
+*.jsonl
 
 # --- CSV datasets / exports ---
 *.csv
+engagement.csv
 
 # --- Video / media files ---
 *.mp4
@@ -72,12 +82,18 @@ videos/
 # --- Downloaded ML assets at repo root (MediaPipe / EAST, fetched on first use) ---
 /models/
 
-# --- OS / editor ---
+# --- OS / editor / personal ---
 .DS_Store
 Thumbs.db
 Desktop.ini
 .idea/
 .vscode/
+.cursor/
 *.swp
 *.swo
 *~
+*.local
+frontend/.venv/
+
+# --- Agent / design-tool working files ---
+.impeccable/
