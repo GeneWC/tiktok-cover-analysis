@@ -14,9 +14,20 @@ export default function Layout({ children }: { children: ReactNode }) {
               CoverSignal
             </span>
           </Link>
-          <span className="text-sm text-slate-400 hidden sm:inline">
-            Instrumental cover video analyzer
-          </span>
+          <nav className="ml-auto flex items-center gap-4 text-sm">
+            <Link
+              to="/"
+              className="text-slate-600 hover:text-indigo-700"
+            >
+              Single video
+            </Link>
+            <Link
+              to="/channel"
+              className="text-slate-600 hover:text-indigo-700"
+            >
+              Channel diagnostics
+            </Link>
+          </nav>
         </div>
       </header>
 
@@ -27,8 +38,8 @@ export default function Layout({ children }: { children: ReactNode }) {
       <footer className="border-t border-slate-200 bg-white">
         <div className="mx-auto max-w-5xl px-4 py-4 text-xs text-slate-500">
           Exploratory analysis for creative feedback only — not a guarantee of
-          performance. Predictions are shown as tiers and probabilities, never
-          exact view counts.
+          performance. Single-video tiers are similarity estimates; channel
+          diagnostics compare within your own batch only.
         </div>
       </footer>
     </div>

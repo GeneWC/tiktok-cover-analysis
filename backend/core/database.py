@@ -39,6 +39,17 @@ CREATE TABLE IF NOT EXISTS analyses (
     report_json_path  TEXT,
     error             TEXT
 );
+
+CREATE TABLE IF NOT EXISTS channel_jobs (
+    id                TEXT PRIMARY KEY,
+    created_at        TEXT NOT NULL,
+    status            TEXT NOT NULL,
+    steps_json        TEXT NOT NULL,
+    videos_json       TEXT NOT NULL,
+    report_json_path  TEXT,
+    error             TEXT,
+    n_features_done   INTEGER NOT NULL DEFAULT 0
+);
 """
 
 

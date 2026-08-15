@@ -13,7 +13,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.api import analyze_routes
+from backend.api import analyze_routes, channel_routes
 from backend.core.config import settings
 from backend.core.database import init_db
 from backend.inference.model_registry import get_registry
@@ -46,9 +46,9 @@ app = FastAPI(
     title=settings.app_name,
     version=settings.app_version,
     description=(
-        "TikTok instrumental cover video analyzer. Upload a single video to "
-        "receive presentation scores, predicted performance tiers, and "
-        "recommendations. Predictions are exploratory."
+        "TikTok instrumental cover video analyzer. Upload a single video for "
+        "exploratory presentation scores, or a channel batch (≥5 videos with "
+        "optional views) for within-creator diagnostics. Not a virality forecast."
     ),
     lifespan=lifespan,
 )
@@ -63,8 +63,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount the analyze router (and any future routers) onto the app.
+# Mount the analyze + channel routers onto the app.
 app.include_router(analyze_routes.router)
+app.include_router(channel_routes.router)
 
 
 @app.get("/", tags=["health"])

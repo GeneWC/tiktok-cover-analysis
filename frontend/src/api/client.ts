@@ -3,6 +3,9 @@
 
 import type {
   AnalyzeResponse,
+  ChannelAnalyzeResponse,
+  ChannelReportResponse,
+  ChannelStatusResponse,
   ReportResponse,
   StatusResponse,
 } from "../types";
@@ -88,6 +91,49 @@ export function getStatus(analysisId: string): Promise<StatusResponse> {
 export function getReport(analysisId: string): Promise<ReportResponse> {
   return requestJson<ReportResponse>(
     `/api/analyze/${encodeURIComponent(analysisId)}/report`
+  );
+}
+
+export interface ChannelDiagnoseInput {
+  files: File[];
+  /** Views aligned to `files` (same length), or omit for presentation-only. */
+  views?: Array<number | null>;
+}
+
+/** POST /api/channel/diagnose — multi-video within-creator diagnostics. */
+export async function diagnoseChannel({
+  files,
+  views,
+}: ChannelDiagnoseInput): Promise<ChannelAnalyzeResponse> {
+  const form = new FormData();
+  for (const file of files) {
+    form.append("video_files", file);
+  }
+  if (views && views.length === files.length) {
+    form.append(
+      "metrics_json",
+      JSON.stringify(views.map((v) => ({ views: v })))
+    );
+  }
+  return requestJson<ChannelAnalyzeResponse>("/api/channel/diagnose", {
+    method: "POST",
+    body: form,
+  });
+}
+
+export function getChannelStatus(
+  channelId: string
+): Promise<ChannelStatusResponse> {
+  return requestJson<ChannelStatusResponse>(
+    `/api/channel/${encodeURIComponent(channelId)}/status`
+  );
+}
+
+export function getChannelReport(
+  channelId: string
+): Promise<ChannelReportResponse> {
+  return requestJson<ChannelReportResponse>(
+    `/api/channel/${encodeURIComponent(channelId)}/report`
   );
 }
 

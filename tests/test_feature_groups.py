@@ -59,8 +59,9 @@ def test_model_specs_are_wellformed():
         assert spec.task in {"classification", "regression"}
         assert spec.artifact.endswith(".pkl")
         assert all(g in GROUP_NAMES for g in spec.feature_groups)
-    # the weak targets are flagged low-confidence
+    # weak cross-creator targets + primary classifier below promotion bar (D-020)
     assert {s.name for s in MODEL_SPECS if s.low_confidence} == {
+        "top_quartile",
         "creator_relative",
         "shareability",
     }

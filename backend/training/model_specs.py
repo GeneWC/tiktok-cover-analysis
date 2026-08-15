@@ -41,6 +41,7 @@ MODEL_SPECS: tuple[ModelSpec, ...] = (
         task="classification",
         artifact="top_quartile_classifier.pkl",
         feature_groups=("framing", "visual"),
+        low_confidence=True,  # held-out test AUC ~0.55 < 0.57 bar (D-003/D-020)
     ),
     ModelSpec(
         name="engagement",

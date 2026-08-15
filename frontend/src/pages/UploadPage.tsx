@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import VideoUploader from "../components/VideoUploader";
 import { analyze, ApiError } from "../api/client";
 import { useAnalysis } from "../context/AnalysisContext";
@@ -75,6 +75,17 @@ export default function UploadPage() {
         <p className="mt-2 text-slate-600">
           Upload an instrumental cover clip and get transparent, feature-based
           feedback on how it presents — plus exploratory similarity tiers.
+        </p>
+        <p className="mt-3 text-sm">
+          <Link
+            to="/channel"
+            className="font-medium text-indigo-600 hover:text-indigo-700"
+          >
+            Prefer channel diagnostics?
+          </Link>{" "}
+          <span className="text-slate-500">
+            Compare {5}+ of your own videos with optional view counts.
+          </span>
         </p>
       </div>
 

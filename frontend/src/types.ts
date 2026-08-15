@@ -80,3 +80,60 @@ export interface ReportResponse {
   explanation: ReportExplanation;
   limitations: string[];
 }
+
+// --- Channel diagnostics (D-018) ---
+
+export const CHANNEL_STEPS = [
+  "upload",
+  "features",
+  "diagnose",
+  "report",
+] as const;
+
+export type ChannelStep = (typeof CHANNEL_STEPS)[number];
+
+export interface ChannelAnalyzeResponse {
+  channel_id: string;
+  status: AnalysisStatus;
+  n_videos: number;
+}
+
+export interface ChannelStatusResponse {
+  channel_id: string;
+  status: AnalysisStatus;
+  steps: Record<string, StepStatus>;
+  n_videos: number;
+  n_features_done: number;
+  error: string | null;
+}
+
+export interface ChannelFeatureDelta {
+  feature: string;
+  hit_mean: number;
+  miss_mean: number;
+  delta: number;
+}
+
+export interface ChannelVideoRank {
+  video_id: string;
+  filename: string | null;
+  views: number | null;
+  presentation_score: number;
+  residual_l2: number;
+  label: number | null;
+}
+
+export interface ChannelReportResponse {
+  channel_id: string;
+  status: AnalysisStatus;
+  mode: "diagnostics";
+  n_videos: number;
+  n_labeled: number;
+  n_hits: number | null;
+  positive_rate: number | null;
+  top_feature_deltas: ChannelFeatureDelta[];
+  video_ranks: ChannelVideoRank[];
+  recommendations: string[];
+  limitations: string[];
+  message: string | null;
+}

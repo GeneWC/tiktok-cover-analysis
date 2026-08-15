@@ -39,10 +39,12 @@ _UNUSABLE_NOTE = (
     "predictions were generated."
 )
 
-# Added when any low-confidence tier is shown (PRD 16.9).
+# Added when any low-confidence model output is shown (PRD 16.9 / D-020).
 _LOW_CONFIDENCE_NOTE = (
-    "View-performance and shareability tiers are low-confidence: these signals "
-    "did not generalize well across creators and should be treated as exploratory."
+    "Similarity and tier scores are low-confidence: cross-creator ranking is "
+    "near chance on held-out creators. Prefer presentation feedback and "
+    "channel diagnostics with your own views; treat single-video tiers as "
+    "exploratory only."
 )
 
 # Shown when the uploaded video has no audio track (PRD 11.6).
@@ -127,7 +129,15 @@ def build_analysis_report(
     video_metadata = _video_metadata(record)
     limitations = list(_BASE_LIMITATIONS)
 
-    if any(t.low_confidence for t in predictions.tiers.values()):
+    # Primary classifier is also low-confidence under D-020 (test AUC < 0.57).
+    from backend.inference.model_registry import get_registry
+
+    try:
+        clf_low = bool(get_registry().classifier.low_confidence)
+    except Exception:  # noqa: BLE001 - registry may be unavailable in some tests
+        clf_low = True
+
+    if clf_low or any(t.low_confidence for t in predictions.tiers.values()):
         limitations.append(_LOW_CONFIDENCE_NOTE)
     if video_metadata is not None and not video_metadata.has_audio:
         limitations.append(_NO_AUDIO_WARNING)

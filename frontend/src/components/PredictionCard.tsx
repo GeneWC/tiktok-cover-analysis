@@ -24,14 +24,19 @@ export default function PredictionCard({ scores }: PredictionCardProps) {
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         <div className="rounded-xl bg-indigo-50 ring-1 ring-indigo-100 p-4">
-          <p className="flex items-center text-sm text-indigo-700">
-            Similarity to top-quartile covers (exploratory)
-            {getDefinition("top quartile") && (
-              <InfoTip
-                text={getDefinition("top quartile")!}
-                label="top-quartile probability"
-              />
-            )}
+          <p className="flex items-center gap-2 text-sm text-indigo-700">
+            <span className="flex items-center">
+              Similarity to top-quartile covers (exploratory)
+              {getDefinition("top quartile") && (
+                <InfoTip
+                  text={getDefinition("top quartile")!}
+                  label="top-quartile probability"
+                />
+              )}
+            </span>
+            <span className="rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-amber-800 ring-1 ring-amber-200">
+              Low confidence
+            </span>
           </p>
           <p className="mt-1 text-3xl font-bold text-indigo-900">
             {formatProbability(prob)}
