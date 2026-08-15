@@ -1,5 +1,3 @@
-"""Multi-file picker for channel diagnostics."""
-
 import { useRef, useState, type DragEvent } from "react";
 import {
   MAX_DURATION_SECONDS,
