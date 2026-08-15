@@ -71,7 +71,10 @@ pytest
 # Frontend
 cd frontend
 npm test
+npm run build   # same TypeScript + Vite step Railway runs
 ```
+
+GitHub Actions (`.github/workflows/ci.yml`) runs the frontend tests/build plus `python backend/check_serving_artifacts.py` on every push and pull request.
 
 ## Training (optional)
 
@@ -99,13 +102,14 @@ videos/           local media (gitignored)
 
 ## Deploy (Railway)
 
-One Docker service serves the API and the built frontend on the same URL.
+One Docker service serves the API and the built frontend on the same URL. GitHub Actions runs the same frontend `npm run build` (TypeScript + Vite) and a serving-artifact check on every push to `main`, so a broken UI build fails in CI instead of only on Railway.
 
 1. Commit the serving artifacts under `backend/models/` (the `.pkl` files are required; they are no longer gitignored).
 2. Push to GitHub, then on [railway.app](https://railway.app) create a project and deploy that repo. Railway will use the `Dockerfile`.
 3. In the service settings, set memory to **at least 2 GB** (4 GB if you will use channel batches). The default is too small for OpenCV / MediaPipe.
-4. Settings → Networking → generate a public domain.
-5. Open that URL. `/health` should return `{"status":"ok"}`.
+4. Same settings page: enable **Wait for CI** so Railway only deploys commits whose GitHub Actions workflow passed.
+5. Settings → Networking → generate a public domain.
+6. Open that URL. `/health` should return `{"status":"ok"}`.
 
 Uploads and the SQLite job DB live on the container disk and disappear when Railway restarts the service. First analysis after a cold start may download MediaPipe model bundles.
 

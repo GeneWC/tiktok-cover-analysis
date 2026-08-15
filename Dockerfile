@@ -3,8 +3,11 @@
 
 FROM node:22-bookworm-slim AS frontend
 WORKDIR /frontend
+# Railway may inject NODE_ENV=production into the build. That would skip
+# typescript/vite (devDependencies) and break `npm run build`.
+ENV NODE_ENV=development
 COPY frontend/package.json frontend/package-lock.json ./
-RUN npm ci
+RUN npm ci --include=dev
 COPY frontend/ ./
 # Empty base URL => the SPA calls /api on this host.
 ENV VITE_API_BASE_URL=
@@ -18,6 +21,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libgl1 \
         libglib2.0-0 \
         libgomp1 \
+        libsm6 \
+        libxext6 \
+        libxrender1 \
         libsndfile1 \
     && rm -rf /var/lib/apt/lists/*
 
@@ -25,6 +31,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY backend ./backend
+RUN python backend/check_serving_artifacts.py
+
 COPY --from=frontend /frontend/dist ./frontend/dist
 
 ENV PYTHONUNBUFFERED=1 \
