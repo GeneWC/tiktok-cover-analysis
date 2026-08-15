@@ -97,6 +97,20 @@ downloads/        local video corpus (gitignored)
 videos/           local media (gitignored)
 ```
 
+## Deploy (Railway)
+
+One Docker service serves the API and the built frontend on the same URL.
+
+1. Commit the serving artifacts under `backend/models/` (the `.pkl` files are required; they are no longer gitignored).
+2. Push to GitHub, then on [railway.app](https://railway.app) create a project and deploy that repo. Railway will use the `Dockerfile`.
+3. In the service settings, set memory to **at least 2 GB** (4 GB if you will use channel batches). The default is too small for OpenCV / MediaPipe.
+4. Settings → Networking → generate a public domain.
+5. Open that URL. `/health` should return `{"status":"ok"}`.
+
+Uploads and the SQLite job DB live on the container disk and disappear when Railway restarts the service. First analysis after a cold start may download MediaPipe model bundles.
+
+Hobby is usage-based (typically a few dollars a month at 2 GB). New accounts usually include a small trial credit.
+
 ## Configuration
 
 Settings use the `COVERSIGNAL_` env prefix (see `backend/core/config.py`). Common knobs: upload size/duration limits, data paths, CORS origins, model directories.

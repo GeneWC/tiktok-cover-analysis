@@ -10,8 +10,12 @@ import type {
   StatusResponse,
 } from "../types";
 
+// Empty string (Railway / same-origin build) calls `/api` on this host.
+// Unset in local Vite dev still points at the default uvicorn port.
 const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000"
+  import.meta.env.VITE_API_BASE_URL === undefined
+    ? "http://localhost:8000"
+    : import.meta.env.VITE_API_BASE_URL
 ).replace(/\/$/, "");
 
 /** Error carrying the HTTP status so callers can branch on 404 vs 4xx/5xx. */
@@ -44,9 +48,9 @@ async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
   try {
     response = await fetch(`${API_BASE_URL}${path}`, init);
   } catch {
+    const target = API_BASE_URL || "this site";
     throw new ApiError(
-      "Could not reach the analysis server. Is the backend running on " +
-        `${API_BASE_URL}?`,
+      `Could not reach the analysis server. Is the backend running on ${target}?`,
       0
     );
   }

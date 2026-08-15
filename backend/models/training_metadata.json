@@ -1,0 +1,85 @@
+{
+  "created_at": "2026-08-05T11:48:20+00:00",
+  "training_dataset": "C:\\Users\\genec\\Desktop\\Programmin\\tiktokcover\\data\\training_dataset.csv",
+  "sklearn_version": "1.9.0",
+  "validation": {
+    "scheme": "GroupKFold by creator",
+    "group_column": "creator_username",
+    "n_splits": 5
+  },
+  "classifier_params": {
+    "n_estimators": 300,
+    "max_depth": null,
+    "min_samples_leaf": 3,
+    "max_features": "sqrt",
+    "class_weight": "balanced",
+    "random_state": 42,
+    "n_jobs": -1
+  },
+  "regressor_params": {
+    "n_estimators": 300,
+    "max_depth": null,
+    "min_samples_leaf": 3,
+    "max_features": "sqrt",
+    "random_state": 42,
+    "n_jobs": -1
+  },
+  "models": {
+    "top_quartile": {
+      "target": "top_quartile_for_creator",
+      "task": "classification",
+      "n_samples": 1370,
+      "n_features": 24,
+      "low_confidence": false,
+      "metrics": {
+        "roc_auc": 0.5307003354155088,
+        "precision_at_k": 0.31932773109243695,
+        "positive_rate": 0.2605839416058394,
+        "n_positive": 357
+      },
+      "evaluation_message": null
+    },
+    "engagement": {
+      "target": "engagement_rate",
+      "task": "regression",
+      "n_samples": 1370,
+      "n_features": 41,
+      "low_confidence": false,
+      "metrics": {
+        "r2": 0.06587309791649643,
+        "mae": 0.04183859608502161,
+        "rmse": 0.05307982914020447,
+        "spearman": 0.2872917759503904
+      },
+      "evaluation_message": null
+    },
+    "creator_relative": {
+      "target": "creator_relative_log_views",
+      "task": "regression",
+      "n_samples": 1370,
+      "n_features": 70,
+      "low_confidence": true,
+      "metrics": {
+        "r2": -0.053841975850240864,
+        "mae": 1.292674818934812,
+        "rmse": 1.724109055684227,
+        "spearman": 0.03571196726752749
+      },
+      "evaluation_message": null
+    },
+    "shareability": {
+      "target": "share_rate",
+      "task": "regression",
+      "n_samples": 1370,
+      "n_features": 70,
+      "low_confidence": true,
+      "metrics": {
+        "r2": 0.0007830911266054619,
+        "mae": 0.003261172875310916,
+        "rmse": 0.004648570145934175,
+        "spearman": 0.19662553792188373
+      },
+      "evaluation_message": null
+    }
+  }
+}

@@ -45,6 +45,12 @@ def _metadata(has_audio=True) -> VideoMetadata:
     )
 
 
+def test_health_ok(client):
+    response = client.get("/health")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
+
+
 def test_upload_registers_job_and_schedules_pipeline(client, monkeypatch):
     scheduled: list[str] = []
     monkeypatch.setattr(routes, "validate_video", lambda path: _metadata())
