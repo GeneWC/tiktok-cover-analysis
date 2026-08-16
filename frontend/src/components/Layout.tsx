@@ -60,7 +60,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             >
               @suibianmusic
             </a>
-            {" · formerly CoverSignal"}
+            {" · Formerly CoverSignal"}
           </p>
         </div>
       </footer>

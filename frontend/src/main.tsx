@@ -5,6 +5,8 @@ import App from "./App.tsx";
 import { AnalysisProvider } from "./context/AnalysisContext.tsx";
 import "./index.css";
 
+document.title = "Zukover";
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
