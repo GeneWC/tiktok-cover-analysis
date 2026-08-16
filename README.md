@@ -121,12 +121,6 @@ Hobby is usage-based (typically a few dollars a month at 2 GB). New accounts usu
 
 Settings use the `ZUKOVER_` env prefix (see `backend/core/config.py`). Common knobs: upload size/duration limits, data paths, CORS origins, model directories. Older `COVERSIGNAL_` env vars are no longer read. The local SQLite file is `data/zukover.db`.
 
-## Honest-UX notes
-
-- Presentation scores (0–100) are percentile-style coaching signals from the video itself.
-- ML output is framed as exploratory / similarity — not predicted view counts.
-- Missing modalities (e.g. no audio track) show as **Not available**, not invented scores.
-
 ## License / data
 
-Local video corpora, engagement CSVs, and private notes are intentionally excluded from the repo. Do not commit personal media or internal interview/resume materials.
+Local video corpora, engagement CSVs, and private notes are intentionally excluded from the repo. Do not commit personal media.

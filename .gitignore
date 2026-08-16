@@ -27,14 +27,10 @@ frontend/.vite/
 frontend/coverage/
 
 # --- Internal documents (not for public repo) ---
-# Interview / resume / architecture / private product notes
 docs/
 audit/
 DEPLOYMENT.md
-INTERVIEW_CHEATSHEET.md
-*INTERVIEW*
-*RESUME*
-*resume*
+*_CHEATSHEET.md
 *ARCHITECTURE*
 *architecture*
 CoverSignal Product Requirements.pdf

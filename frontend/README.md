@@ -73,9 +73,3 @@ src/
   → `202 { analysis_id, status }`
 - `GET /api/analyze/{id}/status` → `{ analysis_id, status, steps }`
 - `GET /api/analyze/{id}/report` → full `ReportResponse`
-
-## Honest-UX notes
-
-Predictions are shown as tiers and a probability, never fabricated view counts.
-Null score/tier fields render as **"Not available"** (e.g. audio quality for a
-video with no audio track), and every report shows the exploratory disclaimer.
