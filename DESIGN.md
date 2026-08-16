@@ -1,5 +1,5 @@
 ---
-name: CoverSignal
+name: Zukover
 description: Dusk palace courtyard for reading how a cover is presented
 colors:
   dusk: "oklch(0.16 0.038 32)"
@@ -59,7 +59,7 @@ components:
 
 ## Overview
 
-CoverSignal is a dusk courtyard, not a light SaaS tool. The page sits in mahogany shadow with worn gold leaf. Atmosphere comes from a palace-eaves still at sunset; the work itself stays plain: upload, wait, read.
+Zukover is a dusk courtyard, not a light SaaS tool. The page sits in mahogany shadow with worn gold leaf. Atmosphere comes from a palace-eaves still at sunset; the work itself stays plain: upload, wait, read.
 
 ## Colors
 

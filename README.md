@@ -1,6 +1,8 @@
-# CoverSignal
+# Zukover
 
-Web app that analyzes how an instrumental TikTok cover is **presented** (filming + sound) and returns a coaching-style report. Machine learning scores are exploratory similarity to creator-relative top performers — not a virality guarantee.
+Formerly **CoverSignal**. Web app that analyzes how an instrumental TikTok cover is **presented** (filming + sound) and returns a coaching-style report. Machine learning scores are exploratory similarity to creator-relative top performers — not a virality guarantee.
+
+Made by [@suibianmusic](https://www.tiktok.com/@suibianmusic).
 
 ## Stack
 
@@ -117,7 +119,7 @@ Hobby is usage-based (typically a few dollars a month at 2 GB). New accounts usu
 
 ## Configuration
 
-Settings use the `COVERSIGNAL_` env prefix (see `backend/core/config.py`). Common knobs: upload size/duration limits, data paths, CORS origins, model directories.
+Settings use the `ZUKOVER_` env prefix (see `backend/core/config.py`). Common knobs: upload size/duration limits, data paths, CORS origins, model directories. Older `COVERSIGNAL_` env vars are no longer read. The local SQLite file is `data/zukover.db`.
 
 ## Honest-UX notes
 

@@ -20,7 +20,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           <Link to="/" className="group flex min-h-11 items-center gap-2.5">
             <FlameMark className="h-8 w-8 text-gold" />
             <span className="font-display text-lg font-medium text-ivory group-hover:text-gold">
-              CoverSignal
+              Zukover
             </span>
           </Link>
           <nav className="ml-auto flex items-center gap-1 text-sm">
@@ -60,6 +60,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             >
               @suibianmusic
             </a>
+            {" · formerly CoverSignal"}
           </p>
         </div>
       </footer>

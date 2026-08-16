@@ -1,13 +1,13 @@
-# CoverSignal Frontend
+# Zukover Frontend
 
 A Vite + React + TypeScript single-page app (styled with Tailwind CSS) for the
-CoverSignal instrumental-cover video analyzer. It drives the existing FastAPI
+Zukover instrumental-cover video analyzer. It drives the existing FastAPI
 backend: upload a video → poll processing status → render the analysis report.
 
 ## Prerequisites
 
 - Node.js 18+ (tested on Node 24)
-- The CoverSignal backend running on `http://localhost:8000` (see the repo root)
+- The Zukover backend running on `http://localhost:8000` (see the repo root)
 
 ## Setup
 

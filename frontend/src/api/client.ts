@@ -1,4 +1,4 @@
-// Typed client for the CoverSignal FastAPI backend.
+// Typed client for the Zukover FastAPI backend.
 // Base URL comes from VITE_API_BASE_URL, defaulting to the local dev backend.
 
 import type {

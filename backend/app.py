@@ -1,4 +1,4 @@
-"""CoverSignal FastAPI application entrypoint.
+"""Zukover FastAPI application entrypoint.
 
 Creates the FastAPI app instance, configures middleware, registers routers, and
 exposes basic health endpoints. Run locally with:

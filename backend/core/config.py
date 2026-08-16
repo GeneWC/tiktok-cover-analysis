@@ -17,17 +17,17 @@ class Settings(BaseSettings):
     """Strongly-typed app settings.
 
     Each attribute is validated by Pydantic. Override any of them with an env
-    var of the same name (case-insensitive), e.g. COVERSIGNAL_MAX_DURATION_SECONDS=60.
+    var of the same name (case-insensitive), e.g. ZUKOVER_MAX_DURATION_SECONDS=60.
     """
 
     model_config = SettingsConfigDict(
-        env_prefix="COVERSIGNAL_",
+        env_prefix="ZUKOVER_",
         env_file=".env",
         env_file_encoding="utf-8",
         extra="ignore",
     )
 
-    app_name: str = "CoverSignal API"
+    app_name: str = "Zukover API"
     app_version: str = "0.1.0"
 
     # Where uploaded videos and generated reports are stored (local FS for MVP).
@@ -36,7 +36,7 @@ class Settings(BaseSettings):
     reports_dir: Path = PROJECT_ROOT / "data" / "reports"
 
     # SQLite database file holding analysis job records (PRD section 21).
-    db_path: Path = PROJECT_ROOT / "data" / "coversignal.db"
+    db_path: Path = PROJECT_ROOT / "data" / "zukover.db"
 
     # Directory for downloaded MediaPipe Tasks model bundles (.task/.tflite).
     mediapipe_models_dir: Path = PROJECT_ROOT / "models" / "mediapipe"

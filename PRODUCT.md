@@ -12,7 +12,7 @@ Instrumental cover musicians (TikTok and similar short-video apps) who want a pl
 
 ## Product Purpose
 
-CoverSignal analyzes how an instrumental cover is presented — filming and sound — and returns a coaching-style report. Success is a clear, honest read the musician can act on, not a virality promise.
+Zukover analyzes how an instrumental cover is presented — filming and sound — and returns a coaching-style report. Success is a clear, honest read the musician can act on, not a virality promise.
 
 ## Positioning
 
@@ -33,8 +33,8 @@ Upload a short cover (mp4 / mov / m4v, about 1–120s). Wait while the job runs.
 
 ## Brand Commitments
 
-- Product name: CoverSignal
-- Credit: “made by @suibianmusic” in the footer
+- Product name: Zukover (formerly CoverSignal)
+- Credit: “made by @suibianmusic · formerly CoverSignal” in the footer
 - Voice: short, plain descriptions. No marketing or AI-sounding copy
 - Binding visual constraint (user): calm Fire Nation / Zuko atmosphere from Avatar: The Last Airbender — intense, still, inviting. Reference stills provided by the user (palace eaves at dusk, dancing-dragon gold light, maroon quote card, Zuko before the flame emblem)
 
