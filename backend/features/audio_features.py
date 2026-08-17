@@ -20,6 +20,12 @@ import av
 import librosa
 import numpy as np
 
+from backend.features.speech_activity import (
+    SPEECH_FEATURE_KEYS,
+    extract_speech_activity,
+    speech_band_energy_ratio,
+)
+
 _TARGET_SR = 22050  # librosa's default analysis rate
 _SILENCE_DB = -40.0  # frames quieter than this (rel. to peak) count as silence
 _CLIPPING_THRESHOLD = 0.99  # |sample| at/above this counts as clipping
@@ -32,6 +38,14 @@ AUDIO_STRUCTURE_FEATURE_KEYS: tuple[str, ...] = (
     "audio_beat_interval_cv",
     "audio_spectral_flux_mean",
     "audio_spectral_flux_std",
+)
+
+AUDIO_PRODUCTION_FEATURE_KEYS: tuple[str, ...] = (
+    "audio_harmonic_ratio",
+    "audio_percussive_ratio",
+    "audio_chroma_stability",
+    "audio_spectral_contrast_mean",
+    "audio_vocal_energy",
 )
 
 _FEATURE_KEYS = (
@@ -52,7 +66,7 @@ _FEATURE_KEYS = (
     "audio_energy_first_6s",
     "audio_energy_full",
     "audio_energy_ratio_first_3s_to_full",
-) + AUDIO_STRUCTURE_FEATURE_KEYS
+) + AUDIO_STRUCTURE_FEATURE_KEYS + AUDIO_PRODUCTION_FEATURE_KEYS + SPEECH_FEATURE_KEYS
 
 
 def _empty_features(status: str) -> dict[str, float | str | None]:
@@ -139,6 +153,8 @@ def extract_audio_features(path: str, target_sr: int = _TARGET_SR) -> dict[str, 
     features["audio_onset_strength_mean"] = round(float(np.mean(onset_env)), 6)
     features["audio_onset_strength_std"] = round(float(np.std(onset_env)), 6)
     features.update(_structure_features(y, sr, onset_env))
+    features.update(_production_features(y, sr))
+    features.update(extract_speech_activity(y, sr))
 
     if energy_full and energy_full > 0 and energy_first_3s is not None:
         features["audio_energy_ratio_first_3s_to_full"] = round(
@@ -204,6 +220,28 @@ def _structure_features(
         "audio_spectral_flux_mean": _round_or_none(flux_mean),
         "audio_spectral_flux_std": _round_or_none(flux_std),
     }
+
+
+def _production_features(y: np.ndarray, sr: int) -> dict[str, float | None]:
+    """Song-agnostic MIR extras (HPSS, chroma lock, contrast). Not key/genre."""
+    out: dict[str, float | None] = {key: None for key in AUDIO_PRODUCTION_FEATURE_KEYS}
+    try:
+        harmonic, percussive = librosa.effects.hpss(y)
+        h_e = float(np.mean(harmonic**2))
+        p_e = float(np.mean(percussive**2))
+        total = h_e + p_e
+        if total > 0:
+            out["audio_harmonic_ratio"] = _round_or_none(h_e / total)
+            out["audio_percussive_ratio"] = _round_or_none(p_e / total)
+        chroma = librosa.feature.chroma_stft(y=y, sr=sr)
+        chroma_stability = float(1.0 - np.clip(np.mean(np.std(chroma, axis=1)), 0.0, 1.0))
+        out["audio_chroma_stability"] = _round_or_none(chroma_stability)
+        contrast = float(np.mean(librosa.feature.spectral_contrast(y=y, sr=sr)))
+        out["audio_spectral_contrast_mean"] = _round_or_none(contrast, digits=3)
+        out["audio_vocal_energy"] = _round_or_none(speech_band_energy_ratio(y, sr))
+    except Exception:  # noqa: BLE001 - keep core audio if HPSS/chroma fails
+        return out
+    return out
 
 
 def _round_or_none(value: float | None, digits: int = 6) -> float | None:

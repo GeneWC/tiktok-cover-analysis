@@ -38,11 +38,13 @@ export default function VideoUploader({
     <div>
       <div
         role="button"
-        tabIndex={0}
+        tabIndex={disabled ? -1 : 0}
+        aria-disabled={disabled}
+        aria-describedby="upload-hints"
         aria-label={
           selectedFile
             ? `Selected ${selectedFile.name}. Click to choose a different file`
-            : "Upload a video"
+            : "Upload a short cover video"
         }
         onClick={openPicker}
         onKeyDown={(e) => {
@@ -80,7 +82,7 @@ export default function VideoUploader({
             <p className="break-all font-medium text-ivory">
               {selectedFile.name}
             </p>
-            <p className="muted text-sm">
+            <p id="upload-hints" className="muted text-sm">
               {formatSize(selectedFile.size)} · click to choose a different file
             </p>
           </div>
@@ -89,9 +91,10 @@ export default function VideoUploader({
             <p className="font-medium text-ivory">
               Drop your cover here, or click to browse
             </p>
-            <p className="muted text-sm">
+            <p id="upload-hints" className="muted text-sm">
               {SUPPORTED_EXTENSIONS.join(", ")} · up to {MAX_FILE_SIZE_MB} MB ·
-              max {MAX_DURATION_SECONDS}s
+              1–{MAX_DURATION_SECONDS}s. Compared with other videos by the same
+              kind of creator.
             </p>
           </div>
         )}
@@ -102,6 +105,7 @@ export default function VideoUploader({
           accept="video/mp4,video/quicktime,.mp4,.mov,.m4v"
           className="hidden"
           tabIndex={-1}
+          aria-label="Upload a short cover video"
           disabled={disabled}
           onChange={(e) => {
             const file = e.target.files?.[0];

@@ -34,7 +34,11 @@ from backend.features.metadata_features import extract_metadata_features
 from backend.features.motion_features import _empty_features as _empty_motion
 from backend.features.motion_features import extract_motion_features
 from backend.features.ocr_features import _empty_features as _empty_ocr
-from backend.features.ocr_features import extract_ocr_features
+from backend.features.ocr_features import detect_text_on_sample
+from backend.features.text_semantics import (
+    TEXT_SEMANTIC_KEYS,
+    extract_text_semantics_features,
+)
 from backend.features.visual_quality_features import _FEATURE_KEYS as _VQ_KEYS
 from backend.features.visual_quality_features import extract_visual_quality_features
 
@@ -47,6 +51,23 @@ _STATUS_FAILED = "failed"
 
 def _empty_visual_quality() -> dict[str, float | None]:
     return {key: None for key in _VQ_KEYS}
+
+
+def _empty_text_semantics() -> dict[str, float | int | None]:
+    return {key: None for key in TEXT_SEMANTIC_KEYS} | {"text_read_failed": 1}
+
+
+def _opening_text_plus_face(framing: dict, ocr: dict) -> int | None:
+    """1 if first-3s has both a face and on-screen text; None if either is missing."""
+    if ocr.get("ocr_failed"):
+        return None
+    face = framing.get("face_visible_ratio_first_3s")
+    present = ocr.get("text_present_first_3s")
+    title = ocr.get("text_titlecard_ratio")
+    if face is None or (present is None and title is None):
+        return None
+    has_text = bool(present) or (title is not None and float(title) > 0)
+    return int(has_text and float(face) > 0)
 
 
 def _merge_motion(features: dict) -> dict:
@@ -144,14 +165,19 @@ def extract_all_features(
         groups["audio"] = _empty_audio(_STATUS_FAILED)
         steps["audio"] = _STATUS_FAILED
 
-    # --- OCR text presence ---
+    # --- OCR text presence + semantics (one EAST pass) ---
     try:
-        ocr = extract_ocr_features(sample)
-        groups["ocr"] = ocr
+        ocr, detections = detect_text_on_sample(sample)
+        semantics = extract_text_semantics_features(sample, detections)
+        groups["ocr"] = {**ocr, **semantics}
         steps["ocr"] = _STATUS_FAILED if ocr.get("ocr_failed") else _STATUS_OK
     except Exception:  # noqa: BLE001
-        groups["ocr"] = _empty_ocr(failed=True)
+        groups["ocr"] = {**_empty_ocr(failed=True), **_empty_text_semantics()}
         steps["ocr"] = _STATUS_FAILED
+
+    groups["ocr"]["opening_text_plus_face"] = _opening_text_plus_face(
+        groups.get("framing", {}), groups["ocr"]
+    )
 
     # Flatten groups into one ordered feature vector.
     features: dict[str, object] = {}

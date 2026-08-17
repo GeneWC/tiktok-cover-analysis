@@ -97,6 +97,8 @@ export default function ReportPage() {
         </div>
       )}
 
+      {!failed && <PredictionCard scores={scores} />}
+
       {!failed && <RecommendationPanel explanation={report.explanation} />}
 
       <section>
@@ -134,8 +136,6 @@ export default function ReportPage() {
           measured.
         </p>
       </section>
-
-      {!failed && <PredictionCard scores={scores} />}
 
       <VideoSummary metadata={report.video_metadata} previewUrl={previewUrl} />
 

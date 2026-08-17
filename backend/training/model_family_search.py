@@ -11,13 +11,14 @@ from typing import Callable
 
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import HistGradientBoostingClassifier, RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_selection import SelectFromModel
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 
 from backend.training.baselines import (
     available_simple_features,
+    build_hist_gradient_pipeline,
     build_rf_control_pipeline,
     build_simple_logistic_pipeline,
 )
@@ -77,27 +78,6 @@ def build_logistic_balanced_pipeline(feature_frame: pd.DataFrame) -> Pipeline:
                 "model",
                 LogisticRegression(
                     max_iter=2000,
-                    class_weight="balanced",
-                    random_state=42,
-                ),
-            ),
-        ]
-    )
-
-
-def build_hist_gradient_pipeline(feature_frame: pd.DataFrame) -> Pipeline:
-    """HistGradientBoosting with median impute + scale (class_weight balanced)."""
-    return Pipeline(
-        steps=[
-            ("preprocess", build_preprocessor_for(feature_frame)),
-            (
-                "model",
-                HistGradientBoostingClassifier(
-                    max_depth=6,
-                    learning_rate=0.05,
-                    max_iter=200,
-                    min_samples_leaf=20,
-                    l2_regularization=1.0,
                     class_weight="balanced",
                     random_state=42,
                 ),

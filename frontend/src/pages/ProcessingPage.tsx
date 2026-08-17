@@ -36,6 +36,12 @@ export default function ProcessingPage() {
         <h1 className="font-display text-3xl font-medium text-ivory">
           {failed ? "Could not finish this video" : "Analyzing…"}
         </h1>
+        {!failed && (
+          <p className="muted mt-2 max-w-prose text-sm">
+            Progress follows finished analysis steps, not a stopwatch. Keep this
+            link — a refresh can resume the job, but the local preview is gone.
+          </p>
+        )}
       </div>
 
       <div className="grid gap-6 md:grid-cols-[220px_1fr]">

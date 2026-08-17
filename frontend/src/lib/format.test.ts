@@ -75,7 +75,9 @@ describe("featureCatalog grouping", () => {
     expect(groupForFeature("face_visible_ratio")).toBe("Framing & subject");
     expect(groupForFeature("camera_stability_score")).toBe("Motion & stability");
     expect(groupForFeature("audio_clipping_ratio")).toBe("Audio");
-    expect(groupForFeature("text_present_anywhere")).toBe("On-screen text");
+    expect(groupForFeature("text_has_cta")).toBe("On-screen text");
+    expect(groupForFeature("speech_ratio")).toBe("Audio");
+    expect(groupForFeature("opening_text_plus_face")).toBe("On-screen text");
     expect(groupForFeature("duration_seconds")).toBe("Video");
     expect(groupForFeature("mystery_feature")).toBe("Other");
   });

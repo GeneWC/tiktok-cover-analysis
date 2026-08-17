@@ -6,9 +6,11 @@ import librosa
 import numpy as np
 
 from backend.features.audio_features import (
+    AUDIO_PRODUCTION_FEATURE_KEYS,
     AUDIO_STRUCTURE_FEATURE_KEYS,
     _FEATURE_KEYS,
     _empty_features,
+    _production_features,
     _segment_energy,
     _structure_features,
 )
@@ -20,9 +22,28 @@ def test_no_audio_returns_nulls_and_failed_status():
     assert all(features[key] is None for key in _FEATURE_KEYS)
 
 
+def test_production_keys_are_in_feature_schema():
+    for key in AUDIO_PRODUCTION_FEATURE_KEYS:
+        assert key in _FEATURE_KEYS
+    assert "speech_ratio" in _FEATURE_KEYS
+    assert "music_after_speech_gap" in _FEATURE_KEYS
+
+
 def test_structure_keys_are_in_feature_schema():
     for key in AUDIO_STRUCTURE_FEATURE_KEYS:
         assert key in _FEATURE_KEYS
+
+
+def test_production_features_on_tone():
+    sr = 22050
+    t = np.linspace(0, 1.0, sr, endpoint=False)
+    y = (0.4 * np.sin(2 * np.pi * 440 * t)).astype(np.float32)
+    feats = _production_features(y, sr)
+    for key in AUDIO_PRODUCTION_FEATURE_KEYS:
+        assert key in feats
+        assert feats[key] is None or np.isfinite(feats[key])
+    if feats["audio_harmonic_ratio"] is not None:
+        assert feats["audio_harmonic_ratio"] > feats.get("audio_percussive_ratio", 0)
 
 
 def test_structure_features_on_tone():

@@ -3,6 +3,7 @@ import { formatProbability, NOT_AVAILABLE } from "../lib/format";
 import { getDefinition } from "../lib/glossary";
 import TierBadge from "./TierBadge";
 import InfoTip from "./InfoTip";
+import RelativeBand from "./RelativeBand";
 
 interface PredictionCardProps {
   scores: ReportScores;
@@ -10,61 +11,57 @@ interface PredictionCardProps {
 
 export default function PredictionCard({ scores }: PredictionCardProps) {
   const prob = scores.top_quartile_probability;
-  const pct = prob != null ? Math.round(prob * 100) : null;
 
   return (
-    <details className="panel-quiet rounded-sm">
-      <summary className="cursor-pointer px-4 py-3 font-display text-xl text-ivory">
-        Compared to other covers
-      </summary>
-      <div className="border-t border-gold/15 px-4 py-4">
-        <p className="muted max-w-prose text-sm">
-          A rough match only. Not a view forecast.
-        </p>
+    <section className="panel rounded-sm p-5" aria-labelledby="relative-result">
+      <h2 id="relative-result" className="font-display text-2xl text-ivory">
+        Relative to a creator’s own videos
+      </h2>
+      <p className="muted mt-2 max-w-prose text-sm">
+        An estimate of how this cover compares with stronger videos from the
+        same kind of creator. Not a view forecast, and not a guarantee.
+      </p>
 
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          <div>
-            <p className="flex flex-wrap items-center gap-2 text-sm text-gold">
-              <span className="flex items-center">
-                Similarity to stronger covers
-                {getDefinition("top quartile") && (
-                  <InfoTip
-                    text={getDefinition("top quartile")!}
-                    label="similarity"
-                  />
-                )}
-              </span>
-            </p>
-            <p className="mt-2 font-display text-2xl text-ivory">
-              {formatProbability(prob)}
-            </p>
-            {pct != null && (
-              <div className="bar-track mt-2 h-2 w-full overflow-hidden rounded-sm">
-                <div className="bar-fill h-full" style={{ width: `${pct}%` }} />
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-3">
-            <TierRow
-              label="View pattern"
-              tier={scores.view_performance_tier}
-              hint={getDefinition("view performance")}
-            />
-            <TierRow
-              label="Like/comment pattern"
-              tier={scores.engagement_tier}
-              hint={getDefinition("engagement")}
-            />
-            <TierRow
-              label="Share pattern"
-              tier={scores.shareability_tier}
-              hint={getDefinition("shareability")}
-            />
+      <div className="mt-5 grid gap-6 md:grid-cols-[1.2fr_1fr]">
+        <div>
+          <p className="flex flex-wrap items-center gap-2 text-sm text-gold">
+            <span className="flex items-center">
+              Resemblance to stronger covers
+              {getDefinition("top quartile") && (
+                <InfoTip
+                  text={getDefinition("top quartile")!}
+                  label="resemblance"
+                />
+              )}
+            </span>
+          </p>
+          <p className="mt-2 font-display text-4xl text-ivory">
+            {formatProbability(prob)}
+          </p>
+          <div className="mt-4">
+            <RelativeBand probability={prob} />
           </div>
         </div>
+
+        <div className="space-y-3">
+          <TierRow
+            label="View pattern"
+            tier={scores.view_performance_tier}
+            hint={getDefinition("view performance")}
+          />
+          <TierRow
+            label="Like/comment pattern"
+            tier={scores.engagement_tier}
+            hint={getDefinition("engagement")}
+          />
+          <TierRow
+            label="Share pattern"
+            tier={scores.shareability_tier}
+            hint={getDefinition("shareability")}
+          />
+        </div>
       </div>
-    </details>
+    </section>
   );
 }
 

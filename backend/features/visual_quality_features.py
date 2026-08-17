@@ -32,6 +32,7 @@ _FEATURE_KEYS = (
     + [f"sharpness_{w}" for w in _DETAIL_WINDOWS]
     + [f"blur_{w}" for w in _DETAIL_WINDOWS]
     + [f"colorfulness_{w}" for w in _DETAIL_WINDOWS]
+    + ["brightness_std_full", "contrast_std_full"]
 )
 
 
@@ -93,5 +94,12 @@ def extract_visual_quality_features(sample: FrameSample) -> dict[str, float | No
         features[f"colorfulness_{window}"] = (
             round(colorfulness_value, 4) if colorfulness_value is not None else None
         )
+
+    features["brightness_std_full"] = (
+        round(float(brightness.std()), 4) if brightness.size else None
+    )
+    features["contrast_std_full"] = (
+        round(float(contrast.std()), 4) if contrast.size else None
+    )
 
     return features

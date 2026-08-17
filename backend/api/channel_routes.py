@@ -28,6 +28,7 @@ from backend.schemas.channel import (
     ChannelStatusResponse,
 )
 from backend.services import channel_store
+from backend.services.job_ids import is_channel_id
 from backend.services.video_validation import VideoValidationError, validate_video
 from backend.training.creator_residuals import MIN_CREATOR_VIDEOS_FOR_RESIDUALS
 
@@ -44,6 +45,8 @@ def ping() -> dict[str, str]:
 
 @router.get("/{channel_id}/status", response_model=ChannelStatusResponse)
 def get_channel_status(channel_id: str) -> ChannelStatusResponse:
+    if not is_channel_id(channel_id):
+        raise HTTPException(status_code=404, detail=f"Channel '{channel_id}' not found.")
     record = channel_store.get_channel_job(channel_id)
     if record is None:
         raise HTTPException(status_code=404, detail=f"Channel '{channel_id}' not found.")
@@ -59,6 +62,8 @@ def get_channel_status(channel_id: str) -> ChannelStatusResponse:
 
 @router.get("/{channel_id}/report", response_model=ChannelReportResponse)
 def get_channel_report(channel_id: str) -> ChannelReportResponse:
+    if not is_channel_id(channel_id):
+        raise HTTPException(status_code=404, detail=f"Channel '{channel_id}' not found.")
     record = channel_store.get_channel_job(channel_id)
     if record is None:
         raise HTTPException(status_code=404, detail=f"Channel '{channel_id}' not found.")

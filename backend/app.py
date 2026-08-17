@@ -18,7 +18,9 @@ from fastapi.staticfiles import StaticFiles
 from backend.api import analyze_routes, channel_routes
 from backend.core.config import PROJECT_ROOT, settings
 from backend.core.database import init_db
+from backend.core.rate_limit import UploadRateLimitMiddleware
 from backend.inference.model_registry import get_registry
+from backend.services.job_cleanup import cleanup_expired_jobs
 
 # Built Vite output. Present in the Railway image; usually absent during local
 # `uvicorn` so the JSON landing payload at `/` stays available for API-only use.
@@ -38,6 +40,7 @@ async def lifespan(app: FastAPI):
     """
     # --- startup ---
     init_db()  # create SQLite tables if they don't exist yet
+    cleanup_expired_jobs()
     try:
         get_registry()
         app.state.models_ready = True
@@ -67,9 +70,10 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=list(settings.cors_allow_origins),
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
+app.add_middleware(UploadRateLimitMiddleware)
 
 # Mount the analyze + channel routers onto the app.
 app.include_router(analyze_routes.router)

@@ -1,4 +1,6 @@
 {
+  "schema_version": 1,
+  "feature_fingerprint": "3b9ae0b273f1725d",
   "all_features": [
     "duration_seconds",
     "fps",

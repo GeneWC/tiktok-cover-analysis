@@ -22,16 +22,15 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 import numpy as np
-import pandas as pd
 from sklearn.base import clone
-from sklearn.metrics import (
-    mean_absolute_error,
-    mean_squared_error,
-    r2_score,
-    roc_auc_score,
-)
 
 from backend.training.feature_groups import select_group_features
+from backend.training.metrics import (
+    attach_within_creator_metrics,
+    classification_metrics,
+    precision_at_k,
+    regression_metrics,
+)
 from backend.training.model_dataset import ModelDataset
 from backend.training.model_specs import MODEL_SPECS, ModelSpec
 from backend.training.train_models import build_pipeline_for_spec
@@ -48,13 +47,6 @@ class EvaluationResult:
     n_folds: int
     metrics: dict[str, float] = field(default_factory=dict)
     message: str | None = None
-
-
-def precision_at_k(y_true: np.ndarray, scores: np.ndarray, k: int) -> float:
-    """Fraction of the top-k highest-scored rows that are truly positive."""
-    k = max(1, min(k, len(scores)))
-    top = np.argsort(scores)[::-1][:k]
-    return float(np.mean(y_true[top]))
 
 
 def _select(spec: ModelSpec, dataset: ModelDataset):
@@ -84,26 +76,6 @@ def _oof_predictions(pipeline, X, y, splits) -> np.ndarray:
     return oof
 
 
-def _classification_metrics(y: np.ndarray, oof: np.ndarray) -> dict[str, float]:
-    n_pos = int(y.sum())
-    return {
-        "roc_auc": float(roc_auc_score(y, oof)),
-        "precision_at_k": precision_at_k(y, oof, k=n_pos),
-        "positive_rate": float(y.mean()),
-        "n_positive": n_pos,
-    }
-
-
-def _regression_metrics(y: np.ndarray, oof: np.ndarray) -> dict[str, float]:
-    spearman = pd.Series(y).corr(pd.Series(oof), method="spearman")
-    return {
-        "r2": float(r2_score(y, oof)),
-        "mae": float(mean_absolute_error(y, oof)),
-        "rmse": float(np.sqrt(mean_squared_error(y, oof))),
-        "spearman": float(spearman) if pd.notna(spearman) else 0.0,
-    }
-
-
 def evaluate_spec(
     spec: ModelSpec, dataset: ModelDataset, n_splits: int = DEFAULT_N_SPLITS
 ) -> EvaluationResult:
@@ -121,10 +93,11 @@ def evaluate_spec(
     oof = _oof_predictions(pipeline, X, y, splits)
 
     metrics = (
-        _classification_metrics(y, oof)
+        classification_metrics(y, oof)
         if spec.task == "classification"
-        else _regression_metrics(y, oof)
+        else regression_metrics(y, oof)
     )
+    attach_within_creator_metrics(metrics, y, oof, groups)
     return EvaluationResult(
         name=spec.name, task=spec.task, n_samples=len(y),
         n_folds=plan.n_splits, metrics=metrics,

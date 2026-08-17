@@ -75,6 +75,8 @@ def test_schema_records_feature_contract(tmp_path):
     ds = _dataset()
     export_models(ds, out_dir=tmp_path)
     schema = load_model_schema(tmp_path)
+    assert schema["schema_version"] == 1
+    assert schema["feature_fingerprint"]
     assert schema["all_features"] == _FEATURES
     tq = schema["models"]["top_quartile"]
     # primary classifier consumes only framing + visual

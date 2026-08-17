@@ -99,7 +99,13 @@ def test_baseline_suite_runs_on_toy():
         assert f in dataset.feature_names
     results = run_baseline_suite(dataset, membership, eval_split="val")
     names = {r.name for r in results}
-    assert names >= {"majority_positive_rate", "random", "simple_logistic", "rf_control"}
+    assert names >= {
+        "majority_positive_rate",
+        "random",
+        "simple_logistic",
+        "rf_control",
+        "hist_gradient_boosting",
+    }
     for r in results:
         assert r.n_eval > 0
         assert "roc_auc" in r.metrics

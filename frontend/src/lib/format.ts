@@ -59,7 +59,7 @@ const STEP_LABELS: Record<PipelineStep, string> = {
   motion: "Checking motion",
   audio: "Checking the sound",
   ocr: "Looking for on-screen text",
-  prediction: "Comparing to other covers",
+  prediction: "Scoring against the creator baseline",
   report: "Writing the report",
 };
 

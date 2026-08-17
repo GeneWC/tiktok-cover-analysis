@@ -66,11 +66,16 @@ export default function UploadPage() {
   return (
     <div className="mx-auto max-w-2xl">
       <div className="mb-10 text-center">
-        <h1 className="font-display text-4xl font-medium text-ivory">
-          Analyze Your Cover
+        <p className="text-xs uppercase tracking-[0.2em] text-gold">
+          Filming and sound, not virality
+        </p>
+        <h1 className="mt-3 font-display text-4xl font-medium text-ivory">
+          How does this cover present?
         </h1>
-        <p className="muted mx-auto mt-3 max-w-md">
-          Upload a cover. Get a plain read on filming and sound.
+        <p className="muted mx-auto mt-3 max-w-lg">
+          Upload one short instrumental cover. The report estimates how it
+          compares with stronger videos from the same kind of creator — an
+          estimate, not a predicted view count.
         </p>
       </div>
 
@@ -90,7 +95,7 @@ export default function UploadPage() {
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={!file || submitting}
+          disabled={!file || submitting || !!error}
           className="btn-primary mt-6 rounded-sm px-4 py-3"
         >
           {submitting ? "Uploading…" : "Analyze video"}

@@ -20,6 +20,7 @@ the inference app loads:
 
 from __future__ import annotations
 
+import hashlib
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -34,8 +35,18 @@ from backend.training.evaluate import EvaluationResult
 from backend.training.model_dataset import GROUP_COLUMN, ModelDataset
 from backend.training.model_specs import MODEL_SPECS, ModelSpec
 from backend.training.regressor import REGRESSOR_PARAMS
+from backend.training.reproducibility import seed_record
 from backend.training.train_models import FittedModel, train_all_models
 from backend.training.validation import DEFAULT_N_SPLITS
+
+# Bump when the inference feature contract changes meaning or order.
+SCHEMA_VERSION = 1
+
+
+def feature_fingerprint(names: list[str]) -> str:
+    """Stable short hash of the ordered feature-name contract."""
+    payload = "\n".join(names).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()[:16]
 
 FEATURE_SCHEMA_FILE = "feature_schema.json"
 IMPORTANCES_FILE = "feature_importances.json"
@@ -105,6 +116,7 @@ def _metadata(
         },
         "classifier_params": CLASSIFIER_PARAMS,
         "regressor_params": REGRESSOR_PARAMS,
+        "reproducibility": seed_record(),
         "models": models_meta,
     }
 
@@ -114,14 +126,25 @@ def export_models(
     out_dir: str | Path | None = None,
     evaluations: dict[str, EvaluationResult] | None = None,
     specs: tuple[ModelSpec, ...] = MODEL_SPECS,
+    fit_dataset: ModelDataset | None = None,
+    calibration_dataset: ModelDataset | None = None,
 ) -> dict[str, Path]:
-    """Fit all models on available rows and write every artifact (PRD 13)."""
+    """Fit all models on available rows and write every artifact (PRD 13).
+
+    ``fit_dataset`` / ``calibration_dataset`` let callers restrict fit and
+    threshold estimation to train (or train+val) creators. Default remains
+    the full dataset so existing artifacts and tests stay unchanged.
+    """
     out_dir = Path(out_dir or settings.models_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    fitted_models = train_all_models(dataset, specs)
+    train_ds = fit_dataset or dataset
+    calib_ds = calibration_dataset or train_ds
+    fitted_models = train_all_models(train_ds, specs)
 
     schema = {
+        "schema_version": SCHEMA_VERSION,
+        "feature_fingerprint": feature_fingerprint(list(dataset.feature_names)),
         "all_features": list(dataset.feature_names),
         "group_column": GROUP_COLUMN,
         "models": {},
@@ -136,7 +159,7 @@ def export_models(
         schema["models"][name] = _schema_entry(fitted)
         importances[name] = _model_importances(fitted)
 
-    calibration = compute_calibration(dataset, fitted_models)
+    calibration = compute_calibration(calib_ds, fitted_models)
 
     schema_path = out_dir / FEATURE_SCHEMA_FILE
     importances_path = out_dir / IMPORTANCES_FILE

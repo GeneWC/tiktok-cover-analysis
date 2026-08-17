@@ -55,7 +55,7 @@ def test_classification_evaluation_reports_ranking_metrics():
 def test_regression_evaluation_reports_error_and_rank_metrics():
     result = evaluate_spec(SPECS_BY_NAME["engagement"], _dataset())
     assert result.task == "regression"
-    assert set(result.metrics) == {"r2", "mae", "rmse", "spearman"}
+    assert set(result.metrics) >= {"r2", "mae", "rmse", "spearman"}
     assert result.metrics["mae"] >= 0.0
 
 

@@ -53,6 +53,11 @@ class Settings(BaseSettings):
 
     # Reject uploads larger than this (PRD 22.1 "file too large").
     max_file_size_mb: int = 200
+    # How long completed job media/reports are kept on disk.
+    job_retention_hours: float = 24.0
+    # Simple per-IP upload cap (POST /api/analyze and /api/channel/diagnose).
+    upload_rate_limit: int = 10
+    upload_rate_window_seconds: int = 600
 
     # Frame sampling for visual feature extraction (PRD 11.1).
     # Sample this many frames per second (PRD recommends 2-5).

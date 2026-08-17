@@ -25,6 +25,7 @@ from backend.inference.generate_user_report import build_report
 from backend.inference.pipeline import run_analysis
 from backend.schemas.analysis import AnalyzeResponse, ReportResponse, StatusResponse
 from backend.services import analysis_store
+from backend.services.job_ids import is_analysis_id
 from backend.services.video_validation import VideoValidationError, validate_video
 
 router = APIRouter(prefix="/api/analyze", tags=["analyze"])
@@ -37,6 +38,11 @@ def get_analysis_or_404(analysis_id: str) -> dict:
     any route that depends on this function, so multiple endpoints can reuse the
     same fetch-or-404 logic without repeating it.
     """
+    if not is_analysis_id(analysis_id):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Analysis '{analysis_id}' not found.",
+        )
     record = analysis_store.get_analysis(analysis_id)
     if record is None:
         raise HTTPException(
@@ -127,8 +133,9 @@ async def analyze_video(
         )
 
     # --- 2. register the job so we have an id to name the file with ---
+    safe_name = Path(video_file.filename).name
     record = analysis_store.create_analysis(
-        video_file_path="", original_filename=video_file.filename
+        video_file_path="", original_filename=safe_name
     )
     analysis_id = record["analysis_id"]
     destination = settings.videos_dir / f"{analysis_id}{extension}"

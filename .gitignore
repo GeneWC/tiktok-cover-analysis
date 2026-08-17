@@ -25,9 +25,16 @@ frontend/node_modules/
 frontend/dist/
 frontend/.vite/
 frontend/coverage/
+frontend/test-results/
+frontend/playwright-report/
+frontend/blob-report/
 
 # --- Internal documents (not for public repo) ---
-docs/
+docs/*
+!docs/agent-improvement-report.md
+!docs/ml-leakage-audit.md
+!docs/visual-feature-definitions.md
+!docs/signal-upgrade-plan.md
 audit/
 DEPLOYMENT.md
 *_CHEATSHEET.md

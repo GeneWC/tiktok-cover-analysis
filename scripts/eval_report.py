@@ -29,7 +29,19 @@ from backend.training.model_dataset import load_model_dataset  # noqa: E402
 
 def _fmt(metrics: dict) -> str:
     parts = []
-    for key in ("roc_auc", "precision_at_k", "brier", "positive_rate", "n_positive"):
+    for key in (
+        "roc_auc",
+        "pr_auc",
+        "precision_at_k",
+        "f1",
+        "balanced_accuracy",
+        "brier",
+        "ece",
+        "within_creator_spearman",
+        "within_creator_pairwise",
+        "positive_rate",
+        "n_positive",
+    ):
         if key not in metrics:
             continue
         val = metrics[key]

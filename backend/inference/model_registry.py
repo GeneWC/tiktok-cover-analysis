@@ -56,6 +56,8 @@ class ModelRegistry:
     all_features: list[str]         # full feature order the extractor must produce
     importances: dict               # per-model feature importances (report signals)
     calibration: dict               # tier thresholds + feature percentiles
+    schema_version: int | None = None
+    feature_fingerprint: str = ""
 
     @property
     def classifier(self) -> LoadedModel:
@@ -104,6 +106,8 @@ def load_registry(models_dir: str | Path | None = None) -> ModelRegistry:
         all_features=list(schema["all_features"]),
         importances=importances,
         calibration=calibration,
+        schema_version=schema.get("schema_version"),
+        feature_fingerprint=str(schema.get("feature_fingerprint") or ""),
     )
 
 

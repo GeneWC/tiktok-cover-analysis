@@ -16,10 +16,11 @@ from backend.training.baselines import (
     ConstantProbaClassifier,
     RandomProbaClassifier,
     available_simple_features,
+    build_hist_gradient_pipeline,
     build_rf_control_pipeline,
     build_simple_logistic_pipeline,
-    classification_metrics,
 )
+from backend.training.metrics import attach_within_creator_metrics, classification_metrics
 from backend.training.creator_splits import (
     CreatorSplitMembership,
     indices_for_split,
@@ -87,9 +88,11 @@ def evaluate_estimator_heldout(
         raise ValueError("eval_split must be 'val' or 'test'")
 
     X, y, groups = _xy_for_primary(dataset, feature_names)
-    X_train, y_train, X_eval, y_eval, _ = _split_xy(
+    X_train, y_train, X_eval, y_eval, _train_groups = _split_xy(
         X, y, groups, membership, eval_split
     )
+    eval_idx = indices_for_split(groups, membership, eval_split)
+    eval_groups = groups[eval_idx]
     if len(X_eval) == 0 or len(X_train) == 0:
         return HeldoutResult(
             name=name,
@@ -106,10 +109,12 @@ def evaluate_estimator_heldout(
     else:
         scores = np.asarray(est.predict(X_eval), dtype=float)
 
+    metrics = classification_metrics(y_eval, scores)
+    attach_within_creator_metrics(metrics, y_eval, scores, eval_groups)
     return HeldoutResult(
         name=name,
         split=eval_split,
-        metrics=classification_metrics(y_eval, scores),
+        metrics=metrics,
         n_train=len(X_train),
         n_eval=len(X_eval),
     )
@@ -144,10 +149,12 @@ def evaluate_train_group_cv(
         est.fit(X_train.iloc[tr], y_train[tr])
         oof[te] = est.predict_proba(X_train.iloc[te])[:, 1]
 
+    metrics = classification_metrics(y_train, oof)
+    attach_within_creator_metrics(metrics, y_train, oof, g_train)
     return HeldoutResult(
         name=name,
         split="train_cv",
-        metrics=classification_metrics(y_train, oof),
+        metrics=metrics,
         n_train=len(X_train),
         n_eval=len(X_train),
     )
@@ -206,6 +213,18 @@ def run_baseline_suite(
         evaluate_estimator_heldout(
             "rf_control",
             rf_pipe,
+            dataset,
+            membership,
+            eval_split=eval_split,
+            feature_names=primary_feats,
+        )
+    )
+
+    hgb_pipe = build_hist_gradient_pipeline(dataset.X[primary_feats])
+    results.append(
+        evaluate_estimator_heldout(
+            "hist_gradient_boosting",
+            hgb_pipe,
             dataset,
             membership,
             eval_split=eval_split,

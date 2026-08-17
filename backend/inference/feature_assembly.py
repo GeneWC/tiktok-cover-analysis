@@ -24,7 +24,12 @@ from backend.features.extract_features import (
     extract_all_features,
 )
 from backend.inference.model_registry import ModelRegistry, get_registry
+from backend.training.export_artifacts import SCHEMA_VERSION, feature_fingerprint
 from backend.training.model_dataset import _coerce_numeric
+
+
+class FeatureSchemaError(ValueError):
+    """Raised when an assembled vector does not match the loaded model contract."""
 
 
 @dataclass
@@ -42,6 +47,41 @@ class AssembledFeatures:
     def usable(self) -> bool:
         """True if frames were decoded (a completely undecodable file is not)."""
         return self.frames_sampled > 0
+
+
+def assert_feature_schema_compatible(
+    X,
+    expected: list[str],
+    *,
+    schema_version: int | None = None,
+    expected_fingerprint: str | None = None,
+) -> None:
+    """Reject a feature frame that does not match the serving contract.
+
+    ColumnTransformer pipelines select by name, but a renamed or reordered
+    contract can still silently impute missing values. Fail fast instead.
+    """
+    cols = list(X.columns)
+    expected = list(expected)
+    if cols != expected:
+        missing = [c for c in expected if c not in cols]
+        extra = [c for c in cols if c not in expected]
+        raise FeatureSchemaError(
+            "Feature schema mismatch: column names or order differ from the "
+            f"loaded model (missing={missing or 'none'}, extra={extra or 'none'})."
+        )
+    if schema_version is not None and schema_version != SCHEMA_VERSION:
+        raise FeatureSchemaError(
+            f"Feature schema version {schema_version} is not supported "
+            f"(expected {SCHEMA_VERSION}). Retrain or regenerate artifacts."
+        )
+    if expected_fingerprint:
+        actual = feature_fingerprint(cols)
+        if actual != expected_fingerprint:
+            raise FeatureSchemaError(
+                "Feature fingerprint does not match the loaded model contract. "
+                "The extractor and the trained pipelines disagree on feature names."
+            )
 
 
 def to_feature_frame(
@@ -70,6 +110,12 @@ def assemble_features(
     result = extract_all_features(video_path, sample=sample)
 
     X = to_feature_frame(result.features, registry.all_features)
+    assert_feature_schema_compatible(
+        X,
+        registry.all_features,
+        schema_version=getattr(registry, "schema_version", None),
+        expected_fingerprint=getattr(registry, "feature_fingerprint", None) or None,
+    )
     return AssembledFeatures(
         X=X,
         raw=result.features,

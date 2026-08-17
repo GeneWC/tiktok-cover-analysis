@@ -110,6 +110,18 @@ class ModelDataset:
         return self.X.loc[mask], y[mask], self.groups[mask]
 
 
+def subset_dataset(dataset: ModelDataset, mask) -> ModelDataset:
+    """Return a row-filtered copy that keeps feature order and leakage rules."""
+    mask = np.asarray(mask, dtype=bool)
+    if len(mask) != len(dataset.frame):
+        raise ValueError("mask length must match dataset rows")
+    return ModelDataset(
+        frame=dataset.frame.loc[mask].reset_index(drop=True),
+        X=dataset.X.loc[mask].reset_index(drop=True),
+        feature_names=list(dataset.feature_names),
+    )
+
+
 def load_model_dataset(path: str | Path | None = None) -> ModelDataset:
     """Load `training_dataset.csv` into a leakage-safe `ModelDataset`."""
     path = Path(path or settings.training_dataset_csv)

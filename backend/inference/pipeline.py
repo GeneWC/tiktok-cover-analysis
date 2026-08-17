@@ -31,6 +31,7 @@ from backend.inference.prediction import predict
 from backend.inference.presentation import compute_presentation_scores
 from backend.schemas.analysis import ReportResponse
 from backend.services import analysis_store
+from backend.services.job_cleanup import delete_job_video
 
 
 def _primitive_features(raw: dict) -> dict:
@@ -77,40 +78,43 @@ def run_analysis(
         raise ValueError(f"Analysis '{analysis_id}' not found.")
     registry = registry or get_registry()
 
-    # --- feature extraction ---
     try:
-        assembled = assemble_features(record["video_file_path"], registry=registry)
-    except Exception:  # noqa: BLE001 - never leave the job stuck on a hard failure
-        analysis_store.set_step(analysis_id, "prediction", "skipped")
-        return _fail(analysis_id, record)
+        # --- feature extraction ---
+        try:
+            assembled = assemble_features(record["video_file_path"], registry=registry)
+        except Exception:  # noqa: BLE001 - never leave the job stuck on a hard failure
+            analysis_store.set_step(analysis_id, "prediction", "skipped")
+            return _fail(analysis_id, record)
 
-    _apply_extraction_steps(analysis_id, assembled)
-    if not assembled.usable:
-        analysis_store.set_step(analysis_id, "prediction", "skipped")
-        return _fail(analysis_id, record)
+        _apply_extraction_steps(analysis_id, assembled)
+        if not assembled.usable:
+            analysis_store.set_step(analysis_id, "prediction", "skipped")
+            return _fail(analysis_id, record)
 
-    # --- model scoring ---
-    analysis_store.set_step(analysis_id, "prediction", "running")
-    try:
-        predictions = predict(assembled, registry=registry)
-    except Exception:  # noqa: BLE001
-        analysis_store.set_step(analysis_id, "prediction", "failed")
-        return _fail(analysis_id, record)
-    analysis_store.set_step(analysis_id, "prediction", "complete")
+        # --- model scoring ---
+        analysis_store.set_step(analysis_id, "prediction", "running")
+        try:
+            predictions = predict(assembled, registry=registry)
+        except Exception:  # noqa: BLE001
+            analysis_store.set_step(analysis_id, "prediction", "failed")
+            return _fail(analysis_id, record)
+        analysis_store.set_step(analysis_id, "prediction", "complete")
 
-    # --- presentation scores + signals (deterministic, non-ML) ---
-    presentation = compute_presentation_scores(assembled.raw, registry.calibration)
-    explanation = build_explanation(
-        assembled.raw, registry.calibration, registry.importances, assembled.has_audio
-    )
+        # --- presentation scores + signals (deterministic, non-ML) ---
+        presentation = compute_presentation_scores(assembled.raw, registry.calibration)
+        explanation = build_explanation(
+            assembled.raw, registry.calibration, registry.importances, assembled.has_audio
+        )
 
-    # --- assemble + persist report ---
-    analysis_store.set_step(analysis_id, "report", "running")
-    report = build_analysis_report(
-        record, predictions, presentation, explanation,
-        features=_primitive_features(assembled.raw),
-    )
-    _persist_report(analysis_id, report)
-    analysis_store.set_step(analysis_id, "report", "complete")
-    analysis_store.update_analysis(analysis_id, status="complete")
-    return report
+        # --- assemble + persist report ---
+        analysis_store.set_step(analysis_id, "report", "running")
+        report = build_analysis_report(
+            record, predictions, presentation, explanation,
+            features=_primitive_features(assembled.raw),
+        )
+        _persist_report(analysis_id, report)
+        analysis_store.set_step(analysis_id, "report", "complete")
+        analysis_store.update_analysis(analysis_id, status="complete")
+        return report
+    finally:
+        delete_job_video(analysis_id)

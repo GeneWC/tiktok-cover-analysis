@@ -17,6 +17,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from backend.inference.feature_assembly import FeatureSchemaError
 from backend.inference.model_registry import ModelRegistry, get_registry
 from backend.training.calibration import tier_for
 
@@ -49,8 +50,18 @@ def predict(assembled, registry: ModelRegistry | None = None) -> Predictions:
     """Score one assembled video into a probability + per-tier predictions."""
     registry = registry or get_registry()
     X = _feature_row(assembled)
+    expected = list(registry.all_features)
+    if list(X.columns) != expected:
+        raise FeatureSchemaError(
+            "Prediction input columns do not match the loaded feature schema."
+        )
 
     clf = registry.classifier
+    missing = [name for name in clf.features if name not in X.columns]
+    if missing:
+        raise FeatureSchemaError(
+            f"Classifier is missing required features: {missing}"
+        )
     probability = float(clf.pipeline.predict_proba(X[clf.features])[0, 1])
 
     tiers: dict[str, TierPrediction] = {}

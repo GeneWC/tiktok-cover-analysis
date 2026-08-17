@@ -154,3 +154,10 @@ def delete_analysis(analysis_id: str) -> None:
     """Remove a job record entirely (e.g. when validation rejects the upload)."""
     with get_connection() as conn:
         conn.execute("DELETE FROM analyses WHERE id = ?", (analysis_id,))
+
+
+def list_analyses() -> list[dict]:
+    """All job records (used by retention cleanup)."""
+    with get_connection() as conn:
+        rows = conn.execute("SELECT * FROM analyses").fetchall()
+    return [_row_to_record(row) for row in rows]

@@ -1,0 +1,6 @@
+torch>=2.0,<3.0
+torchaudio>=2.0,<3.0
+openai-whisper>=20230918
+librosa>=0.10,<1.0
+soundfile>=0.12,<1.0
+numpy>=1.24,<3.0

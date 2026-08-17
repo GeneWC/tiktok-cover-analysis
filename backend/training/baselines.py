@@ -11,12 +11,14 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, ClassifierMixin, clone
+from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 
 from backend.training.classifier import build_classifier_pipeline
-from backend.training.evaluate import precision_at_k
+from backend.training.metrics import classification_metrics
 from backend.training.preprocessing import build_preprocessor_for
+from backend.training.reproducibility import SKLEARN_RANDOM_STATE
 
 # Hand-picked "obvious" presentation features (exist in current schema).
 SIMPLE_LOGISTIC_FEATURES: tuple[str, ...] = (
@@ -61,7 +63,7 @@ class ConstantProbaClassifier(BaseEstimator, ClassifierMixin):
 class RandomProbaClassifier(BaseEstimator, ClassifierMixin):
     """Uniform random scores in [0, 1] (seeded). Not fit-dependent beyond length."""
 
-    def __init__(self, seed: int = 42):
+    def __init__(self, seed: int = SKLEARN_RANDOM_STATE):
         self.seed = seed
 
     def fit(self, X, y):
@@ -79,26 +81,6 @@ class RandomProbaClassifier(BaseEstimator, ClassifierMixin):
         return (self.predict_proba(X)[:, 1] >= 0.5).astype(int)
 
 
-def classification_metrics(y_true: np.ndarray, scores: np.ndarray) -> dict[str, float]:
-    from sklearn.metrics import brier_score_loss, roc_auc_score
-
-    y_true = np.asarray(y_true).astype(int)
-    scores = np.asarray(scores, dtype=float)
-    n_pos = int(y_true.sum())
-    metrics: dict[str, float] = {
-        "positive_rate": float(y_true.mean()) if len(y_true) else 0.0,
-        "n_positive": float(n_pos),
-        "precision_at_k": precision_at_k(y_true, scores, k=max(n_pos, 1)),
-    }
-    if len(np.unique(y_true)) < 2:
-        metrics["roc_auc"] = float("nan")
-        metrics["brier"] = float("nan")
-        return metrics
-    metrics["roc_auc"] = float(roc_auc_score(y_true, scores))
-    metrics["brier"] = float(brier_score_loss(y_true, np.clip(scores, 0.0, 1.0)))
-    return metrics
-
-
 def build_simple_logistic_pipeline(feature_frame: pd.DataFrame) -> Pipeline:
     """Logistic regression on the fixed simple-feature subset (impute+scale)."""
     return Pipeline(
@@ -109,7 +91,7 @@ def build_simple_logistic_pipeline(feature_frame: pd.DataFrame) -> Pipeline:
                 LogisticRegression(
                     max_iter=2000,
                     class_weight="balanced",
-                    random_state=42,
+                    random_state=SKLEARN_RANDOM_STATE,
                 ),
             ),
         ]
@@ -119,6 +101,27 @@ def build_simple_logistic_pipeline(feature_frame: pd.DataFrame) -> Pipeline:
 def build_rf_control_pipeline(feature_frame: pd.DataFrame) -> Pipeline:
     """Current RandomForest control (same hyperparams as production classifier)."""
     return build_classifier_pipeline(feature_frame)
+
+
+def build_hist_gradient_pipeline(feature_frame: pd.DataFrame) -> Pipeline:
+    """Histogram gradient boosting baseline (impute+scale, class-balanced)."""
+    return Pipeline(
+        steps=[
+            ("preprocess", build_preprocessor_for(feature_frame)),
+            (
+                "model",
+                HistGradientBoostingClassifier(
+                    max_depth=6,
+                    learning_rate=0.05,
+                    max_iter=200,
+                    min_samples_leaf=20,
+                    l2_regularization=1.0,
+                    class_weight="balanced",
+                    random_state=SKLEARN_RANDOM_STATE,
+                ),
+            ),
+        ]
+    )
 
 
 def available_simple_features(columns: list[str]) -> list[str]:

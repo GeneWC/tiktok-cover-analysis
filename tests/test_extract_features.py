@@ -11,7 +11,7 @@ from __future__ import annotations
 from backend.features.extract_features import extract_all_features
 
 _BOGUS = "this_video_does_not_exist_42.mp4"
-_EXPECTED_FEATURE_COUNT = 77  # 71 prior + 6 D-007 audio structure cues
+_EXPECTED_FEATURE_COUNT = 112  # 89 + 14 text semantics + 5 MIR + 3 speech + 1 opening
 _PIPELINE_GROUPS = {
     "metadata",
     "frame_sampling",
@@ -56,5 +56,9 @@ def test_required_feature_names_present_even_on_failure():
         "audio_feature_extraction_status",
         "text_present_anywhere",
         "ocr_failed",
+        "text_titlecard_ratio",
+        "speech_ratio",
+        "opening_text_plus_face",
+        "audio_harmonic_ratio",
     }
     assert required <= set(features)

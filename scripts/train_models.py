@@ -23,6 +23,7 @@ from backend.core.config import settings  # noqa: E402
 from backend.training.evaluate import evaluate_all  # noqa: E402
 from backend.training.export_artifacts import export_models  # noqa: E402
 from backend.training.model_dataset import load_model_dataset  # noqa: E402
+from backend.training.reproducibility import seed_everything  # noqa: E402
 
 
 def _format_metrics(result) -> str:
@@ -38,6 +39,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", default=str(settings.models_dir))
     args = parser.parse_args(argv)
 
+    seed_everything()
     dataset = load_model_dataset(args.dataset)
     print(f"Loaded {len(dataset.frame)} rows, {len(dataset.feature_names)} features.\n")
 

@@ -46,6 +46,23 @@ def test_noise_is_sharper_than_flat(make_sample):
     assert features["blur_full"] < 0.05
 
 
+def test_black_frames_have_zero_temporal_variation(make_sample):
+    features = extract_visual_quality_features(make_sample(_solid(0), _TIMESTAMPS))
+    assert features["brightness_std_full"] == 0.0
+    assert features["contrast_std_full"] == 0.0
+
+
+def test_increasing_blur_lowers_sharpness(make_sample):
+    rng = np.random.default_rng(1)
+    sharp = rng.integers(0, 256, _SHAPE, dtype=np.uint8)
+    import cv2
+
+    blurred = [cv2.GaussianBlur(sharp, (k, k), 0) for k in (3, 7, 11, 15)]
+    sharp_feat = extract_visual_quality_features(make_sample([sharp] * 4, _TIMESTAMPS))
+    blur_feat = extract_visual_quality_features(make_sample(blurred, _TIMESTAMPS))
+    assert blur_feat["sharpness_full"] < sharp_feat["sharpness_full"]
+
+
 def test_empty_sample_returns_all_none():
     features = extract_visual_quality_features(FrameSample(0, 0, 0.0, 0.0, 0, 0))
     assert all(features[key] is None for key in _FEATURE_KEYS)

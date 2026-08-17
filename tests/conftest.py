@@ -18,7 +18,14 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from backend.core.config import settings  # noqa: E402
 from backend.features.frame_sampling import FrameSample, SampledFrame  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def _generous_upload_rate_limit(monkeypatch):
+    """Keep suite-wide POSTs from sharing one in-memory rate-limit bucket."""
+    monkeypatch.setattr(settings, "upload_rate_limit", 10_000)
 
 
 @pytest.fixture

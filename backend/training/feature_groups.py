@@ -15,9 +15,21 @@ from __future__ import annotations
 
 # (group name, keyword fragments). Order matters: first match wins.
 _RULES: tuple[tuple[str, tuple[str, ...]], ...] = (
-    ("audio", ("audio_",)),
-    ("text", ("text_", "first_text", "average_text", "ocr_failed")),
-    ("motion", ("motion_energy", "motion_consistency", "hand_motion", "camera_stability")),
+    ("audio", ("audio_", "speech_", "music_after_speech")),
+    ("text", ("text_", "first_text", "average_text", "ocr_failed", "opening_text")),
+    (
+        "motion",
+        (
+            "motion_energy",
+            "motion_consistency",
+            "motion_subject",
+            "hand_motion",
+            "camera_",
+            "performer_motion",
+            "shot_cut",
+            "average_shot",
+        ),
+    ),
     (
         "framing",
         (
